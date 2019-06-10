@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Webkiosk Wrapper</title>
+	<link rel="stylesheet" href="../node_modules/mdbootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../node_modules/mdbootstrap/css/mdb.min.css">
+	<<link rel="stylesheet" href="../static/css/font.css">
+	<style>
+		.screen{
+			display: none;
+		}
+		#home{
+			display: block;
+		}
+	</style>
+</head>
+<body style="background-color: #eee;">
+	<div class="container-fluid">
+		<br>
+		<div class="row">
+			<div class="col-12">
+				<center>
+					<div class="parentalStatus">
+						
+					</div>
+				</center>
+			</div>
+		</div>
+		<div id="home" class="screen">
+			<div class="row">
+				<div class="col-12">
+					<div class="card card-image z-depth-3" style="background-image: url(../static/images/back.jpg);background-repeat: no-repeat;background-size:cover;height:450px;">
+						<div class="text-white text-center d-flex align-items-center rgba-black-strong py-5 px-4" style="height:450px;">
+							<center>
+								<div style="width: 60%;background-color: white;opacity: 0.5;color: black;padding: 1%;">
+									<h3 class="card-title pt-2"><strong>JAYPEE INSTITUTE OF INFORMATION TECHNOLOGY</strong></h3>
+									<br>
+									<strong>
+										<p>Webkiosk Portal is one stop to access all your info be it academic or personal. Presenting the software for that Portal, i.e., WEBKIOSK-WRAPPER</p>
+										<p>A new and personalized way to access the JIIT-Webkiosk. Check out your attendance, CGPA/SGPA, Registered Subjects, Date sheet, Seating Plan, Exam Grades and more without the hassle of logging in everytime. </p>
+										<p>This software is heavily dependent on webkiosk website. If anything goes wrong with the website, this software may not work. Also, The payment options are unavailable due to security.</p>
+									</strong>
+								</div>
+							</center>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="screen" id="info">
+			<div class="card card-cascade narrower">
+				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
+					<div></div>
+					<h3>
+						<a href="" class="white-text mx-3">Personal Information</a>
+					</h3>
+					<div></div>
+				</div>
+				<div class="px-4">
+					<div class="table-wrapper">
+						<table class="table table-hover mb-0">
+							<thead>
+								<tr>
+									<th>
+										#
+									</th>
+									<th>
+										<a>
+											Category
+										</a>
+									</th>
+									<th>
+										<a>
+											Value
+										</a>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="pinfo">
+								
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="screen" id="passwordChange">
+			<div class="row">
+				
+			</div>
+		</div>
+		<div class="screen" id="full">
+			<div class="card card-cascade narrower">
+				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
+					<div></div>
+					<h3>
+						<a href="" class="white-text mx-3">Full Fees History</a>
+					</h3>
+					<div></div>
+				</div>
+				<div class="px-4">
+					<div class="table-wrapper">
+						<table class="table table-hover mb-0">
+							<thead>
+								<tr>
+									<th>
+										#
+									</th>
+									<th>
+										<a>
+											Amount
+										</a>
+									</th>
+									<th>
+										<a>
+											Paid
+										</a>
+									</th>
+									<th>
+										<a>
+											Dues
+										</a>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="fullSummary">
+								
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="screen" id="online">
+			<div class="card card-cascade narrower">
+				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
+					<div></div>
+					<h3>
+						<a href="" class="white-text mx-3">Online Fees History</a>
+					</h3>
+					<div></div>
+				</div>
+				<div class="px-4">
+					<div class="table-wrapper">
+						<table class="table table-hover mb-0">
+							<thead>
+								<tr>
+									<th>
+										#
+									</th>
+									<th>
+										<a>
+											Amount
+										</a>
+									</th>
+									<th>
+										<a>
+											Paid
+										</a>
+									</th>
+									<th>
+										<a>
+											Trnx ID
+										</a>
+									</th>
+									<th>
+										<a>
+											Status
+										</a>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="onlineSummary">
+								
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="screen" id="getPA">
+			<div class="card card-cascade narrower">
+				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
+					<div></div>
+					<h3>
+						<a href="" class="white-text mx-3">View CGPA/SGPA</a>
+					</h3>
+					<div></div>
+				</div>
+				<div class="px-4">
+					<div class="table-wrapper">
+						<table class="table table-hover mb-0">
+							<thead>
+								<tr>
+									<th>
+										#
+									</th>
+									<th>
+										<a>
+											Credits
+										</a>
+									</th>
+									<th>
+										<a>
+											SGPA
+										</a>
+									</th>
+									<th>
+										<a>
+											CGPA
+										</a>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="pa">
+								
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="screen" id="getGrade">
+			<div class="card card-cascade narrower">
+				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
+					<div></div>
+					<h3>
+						<a href="" class="white-text mx-3">Exam Grades</a>
+					</h3>
+					<div></div>
+				</div>
+				<div class="px-4">
+					<div class="table-wrapper">
+						<table class="table table-hover mb-0">
+							<thead>
+								<tr>
+									<th>
+										<a>
+											Course
+										</a>
+									</th>
+									<th>
+										<a>
+											Grade
+										</a>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="grade">
+								
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="screen" id="getMarks">
+			<div class="card card-cascade narrower">
+				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
+					<div></div>
+					<h3>
+						<a href="" class="white-text mx-3">Exam Marks</a>
+					</h3>
+					<div></div>
+				</div>
+				<div class="px-4">
+					<div class="table-wrapper">
+						<table class="table table-hover mb-0">
+							<thead id="mhead">
+								
+							</thead>
+							<tbody id="marks">
+								
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="screen" id="getFaculty">
+			<div class="card card-cascade narrower">
+				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
+					<div></div>
+					<h3>
+						<a href="" class="white-text mx-3">Subjects and Faculties</a>
+					</h3>
+					<div></div>
+				</div>
+				<div class="px-4">
+					<div class="table-wrapper">
+						<table class="table table-hover mb-0">
+							<thead>
+								<tr>
+									<th>
+										<a>
+											Subjects
+										</a>
+									</th>
+									<th>
+										<a>
+											Lecture
+										</a>
+									</th>
+									<th>
+										<a>
+											Tutorial
+										</a>
+									</th>
+									<th>
+										<a>
+											Practical
+										</a>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="faculty">
+								
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="attSummary" class="screen">
+			<div class="card card-cascade narrower">
+				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
+					<div></div>
+					<h3>
+						<a href="" class="white-text mx-3">Attendance Summary</a>
+					</h3>
+					<div></div>
+				</div>
+				<div class="px-4">
+					<div class="table-wrapper">
+						<table class="table table-hover mb-0">
+							<thead>
+								<tr>
+									<th>
+										#
+									</th>
+									<th>
+										<a>
+											Subjects
+										</a>
+									</th>
+									<th>
+										<a>
+											Lecture+Tutorial
+										</a>
+									</th>
+									<th>
+										<a>
+											Lecture
+										</a>
+									</th>
+									<th>
+										<a>
+											Tutorial
+										</a>
+									</th>
+									<th>
+										<a>
+											Practical
+										</a>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="summary">
+								
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br><br>
+		<section style="background-color: white;">
+			<div class="row">
+				<div class="col-12">
+					<h2 class="h1-responsive font-weight-bold text-center my-5">Why is it so great?</h2>
+					<p class="lead grey-text text-center w-responsive mx-auto mb-5">Get everything superfast on a few clicks. Experience the power of your Graphics in browsing the webkiosk.</p>
+				</div>
+			</div>
+			<div class="row text-center">
+				<div class="col-4">
+					<i class="fas fa-user-shield fa-5x red-text"></i>
+				</div>
+				<div class="col-4">
+					<i class="fas fa-bolt fa-5x cyan-text"></i>
+				</div>
+				<div class="col-4">
+					<i class="fas fa-location-arrow fa-5x orange-text"></i>
+				</div>
+			</div>
+			<div class="row text-center">
+				<div class="col-4">
+					<h5 class="font-weight-bold my-4">Autologin</h5>
+				</div>
+				<div class="col-4">
+					<h5 class="font-weight-bold my-4">Speed</h5>
+				</div>
+				<div class="col-4">
+					<h5 class="font-weight-bold my-4">Direct</h5>
+				</div>
+			</div>
+			<div class="row text-center">
+				<div class="col-4">
+					<p class="grey-text mb-md-0 mb-5">No need to login again and again. Just login once and forget. We will login automatically everytime you open Webkiosk-Wrapper. Don't worry about security. We are still using full cookies and session encryption here.</p>
+				</div>
+				<div class="col-4">
+					<p class="grey-text mb-md-0 mb-5">Tired of 'Waiting for webkiosk'. We bring the actual speed to your clicks. Even if the internet/webkiosk is unavailable, You will still be able to see the last records.</p>
+				</div>
+				<div class="col-4">
+					<p class="grey-text mb-md-0 mb-5">All the communications are direct. We are not using custom servers. So, if the data is not updated on the software, perhaps it is unupdated on the website too.</p>
+				</div>
+			</div>
+		</section>
+		<br><br>
+		<div class="row" style="position: fixed;left: 0;bottom: 0;background-color: #E8EBEF;width:100%;z-index:3;cursor: default;">
+			<div class="col-2">
+				<h6 data-toggle="tooltip" data-placement="top" title="Buy me a Coffee!">
+					<center>NGUdbhav</center>
+				</h6>
+			</div>
+			<div class="col-4 offset-2" onclick="checkUpdates();">
+				<h6 data-toggle="tooltip" data-placement="top" title="Check for updates">
+					<center>
+						<a style="cursor:pointer;" id="updates">Connecting...</a>
+					</center>
+				</h6>
+			</div>
+			<div class="col-1 offset-3">
+				<h6 id="status" data-toggle="tooltip" data-placement="top" title="Current Status">
+					<center>Idle</center>
+				</h6>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	window.$ = window.jQuery = require('jquery');
+	require('popper.js');
+	window.Bootstrap = require('bootstrap');
+	var electron = require('electron');
+	var {ipcRenderer} = electron;
+	$("input[type='submit']").click(function(){
+		ipcRenderer.send('login', {enroll:$("input[name='enroll']").val(),cat:$("input[name='cat']").val(),dob:$("input[name='dob']").val(),password:$("input[name='password']").val()});
+	});
+	ipcRenderer.on('parentalLoginStatus', function(e, item){
+		if(item.status === 1){
+			$(".parentalStatus").html('<div class="alert alert-danger" role="alert"><span>&times;</span>  Parental login enabled. It seems you are using the default password. Please change your password for maximum security.</div>');
+			//Parental Login enabled
+		}
+		else{
+			$('.parentalStatus').html('<div class="alert alert-success" role="alert"><i class="fas fa-check"></i>  Parental login disabled. Your account is secure.</div>');
+			//disabled
+		}
+	});
+	ipcRenderer.on('attendanceSummary', function(e, item){
+		var tableString;
+		for(let i in item.subjects){
+			tableString+='<tr><td>'+(parseInt(i)+1)+'</td><td>'+item.subjects[i]+'</td><td>'+item.lect_and_tut[i]+'</td><td>'+item.lect[i]+'</td><td>'+item.tut[i]+'</td><td>'+item.prac[i]+'</td></tr>';
+		}
+		tableString.replace(null, 'NA');
+		$("#summary").html(tableString);
+	});
+	ipcRenderer.on('info', function(e, item){
+		var tableString;
+		var fields = ['Name', 'Enrollment', 'Father\'s Name', 'Course', 'Semester', 'Aadhar', 'Mobile', 'Telephone', 'Email'];
+		for(let i in item.data){
+			tableString+='<tr><td>'+(parseInt(i)+1)+'</td><td>'+fields[i]+'</td><td>'+item.data[i]+'</td></tr>';
+		}
+		$("#pinfo").html(tableString);
+	});
+	ipcRenderer.on('fullInfo', function(e, item){
+		var tableString;
+		for(let i in item.sem){
+			tableString+='<tr><td>'+item.sem[i]+'</td><td>'+item.feesAmount[i]+'</td><td>'+item.paid[i]+'</td><td>'+item.dues[i]+'</td></tr>';
+		}
+		$("#fullSummary").html(tableString);
+	});
+	ipcRenderer.on('onlineInfo', function(e, item){
+		var tableString;
+		for(let i in item.sem){
+			tableString+='<tr><td>'+item.sem[i]+'</td><td>'+item.feesAmount[i]+'</td><td>'+item.paid[i]+'</td><td>'+item.trxn[i]+'</td><td>'+item.status[i]+'</td></tr>';
+		}
+		$("#onlineSummary").html(tableString);
+	});
+	ipcRenderer.on('pa', function(e, item){
+		var tableString;
+		for(let i in item.sem){
+			tableString+='<tr><td>'+item.sem[i]+'</td><td>'+item.credit[i]+'</td><td>'+item.sg[i]+'</td><td>'+item.cg[i]+'</td></tr>';
+		}
+		$("#pa").html(tableString);
+	});
+	ipcRenderer.on('grade', function(e, item){
+		var tableString;
+		for(let i in item.course){
+			tableString+='<tr><td>'+item.course[i]+'</td><td>'+item.grade[i]+'</td></tr>';
+		}
+		$("#grade").html(tableString);
+	});
+	ipcRenderer.on('faculty', function(e, item){
+		var tableString;
+		for(let i in item.subject){
+			tableString+='<tr><td>'+item.subject[i]+'</td><td>'+item.lecture[i]+'</td><td>'+item.tutorial[i]+'</td><td>'+item.practical[i]+'</td></tr>';
+		}
+		$("#faculty").html(tableString);
+	});
+	ipcRenderer.on('marks', function(e, item){
+		var tableString;
+		var headString = '<tr>'+item.thead+'</tr>'
+		for(let i in item.tr){
+			tableString+='<tr>'+item.tr[i]+'</tr>';
+		}
+		$("#marks").html(tableString);
+	});
+	ipcRenderer.on('name', function(e, item){
+		console.log(item);
+		$("title").html('Webkiosk-Wrapper ('+item+')');
+	});
+	ipcRenderer.on('windowShift', function(e, item){
+		$(".screen").animate({
+			height: 'hide'
+		});
+		switch (item) {
+			case 'home':
+				$("#home").animate({
+					height: 'show'
+				});
+				break;
+			case 'info':
+				$("#info").animate({
+					height: 'show'
+				});
+				break;
+			case 'full':
+				$("#full").animate({
+					height: 'show'
+				});
+				break;
+			case 'online':
+				$("#online").animate({
+					height: 'show'
+				});
+				break;
+			case 'getPA':
+				$("#getPA").animate({
+					height: 'show'
+				});
+				break;
+			case 'attSummary':
+				$("#attSummary").animate({
+					height: 'show'
+				});
+				break;
+			case 'marks':
+				$("#getMarks").animate({
+					height: 'show'
+				});
+				break;
+			case 'grade':
+				$("#getGrade").animate({
+					height: 'show'
+				});
+				break;
+			case 'cg':
+				$("#getPA").animate({
+					height: 'show'
+				});
+				break;
+			case 'faculty':
+				$("#getFaculty").animate({
+					height: 'show'
+				});
+				break;
+			default:
+				break;
+		}
+	});
+</script>
+</html>

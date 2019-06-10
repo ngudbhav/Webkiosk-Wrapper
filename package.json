@@ -1,0 +1,23 @@
+{
+  "name": "webskiosk-wrapper",
+  "version": "1.0.0",
+  "description": "A Webkiosk Wrapper for desktop.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "author": "Udbhav Gambhir <ngudbhav05@hotmail.com> (https://www.ngudbhav.me)",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "cheerio": "^1.0.0-rc.3",
+    "cryptr": "^4.0.2",
+    "electron": "^5.0.2",
+    "jquery": "^3.4.1",
+    "mdbootstrap": "^4.8.2",
+    "nedb": "^1.8.0",
+    "popper.js": "^1.15.0",
+    "request": "^2.88.0"
+  }
+}

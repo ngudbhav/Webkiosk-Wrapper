@@ -35,7 +35,9 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
-
+release-builds/
+SSL/
+dist/
 # TypeScript v1 declaration files
 typings/
 

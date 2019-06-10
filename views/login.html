@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Webkiosk Wrapper</title>
+	<link rel="stylesheet" href="../node_modules/mdbootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../node_modules/mdbootstrap/css/mdb.min.css">
+	<link rel="stylesheet" href="../static/css/font.css">
+</head>
+<body>
+	<br>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-12">
+				<div class="card card-cascade narrower">
+					<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
+						<div></div>
+						<h3>
+							<a class="white-text mx-3">Login once and forget</a>
+						</h3>
+						<div></div>
+					</div>
+					<div class="px-4">
+						<div class="table-wrapper">
+							<div class="md-form">
+								<i class="fas fa-user prefix"></i>
+								<input type="text" id="form1" class="form-control" name="name" placeholder="Your Name">
+								<label for="form1" class="sr-only">Your Name</label>
+							</div>
+							<div class="md-form">
+								<i class="fas fa-passport prefix"></i>
+								<input type="text" id="form2" class="form-control" name="enroll" placeholder="Enrollment Number">
+								<label for="form2" class="sr-only">Enrollment Number</label>
+							</div>
+							<div class="md-form">
+								<i class="fas fa-calendar-week prefix"></i>
+								<input type="text" id="form3" class="form-control" name="dob" placeholder="Date of Birth (DD-MM-YYYY)">
+								<label for="form3" class="sr-only">Date of Birth (DD-MM-YYYY)</label>
+							</div>
+							<div class="md-form">
+								<i class="fas fa-lock prefix"></i>
+								<input type="password" id="form4" class="form-control" name="password" placeholder="Your Password">
+								<label for="form4" class="sr-only">Your Password</label>
+							</div>
+							<button type="submit" class="btn blue-gradient btn-md" style="color: white;"><i class="fas fa-sign-in-alt"></i>   Sign in</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="position: fixed;left: 0;bottom: 0;background-color: #E8EBEF;width:100%;z-index:3;cursor: default;">
+			<div class="col-2">
+				<h6 data-toggle="tooltip" data-placement="top" title="Buy me a Coffee!">
+					<center>NGUdbhav</center>
+				</h6>
+			</div>
+			<div class="col-4 offset-2" onclick="checkUpdates();">
+				<h6 data-toggle="tooltip" data-placement="top" title="Check for updates">
+					<center>
+						<a style="cursor:pointer;" id="updates">Connecting...</a>
+					</center>
+				</h6>
+			</div>
+			<div class="col-1 offset-3">
+				<h6 id="status" data-toggle="tooltip" data-placement="top" title="Current Status">
+					<center>Idle</center>
+				</h6>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	var electron = require('electron');
+	var {ipcRenderer} = electron;
+	window.$ = window.jQuery = require('jquery');
+	require('popper.js');
+	window.Bootstrap = require('bootstrap');
+	$("button[type='submit']").click(function(){
+		if($("input[name='enroll']").val() && $("input[name='name']").val() && $("input[name='dob']").val() && $("input[name='password']").val()){
+			ipcRenderer.send('login', {enroll:$("input[name='enroll']").val(),name:$("input[name='name']").val(),dob:$("input[name='dob']").val(),password:$("input[name='password']").val()});
+			$(this).html('<i class="fas fa-cog fa-spin"></i>  Logging in...');
+		}
+		else{
+			alert('Please complete all details to proceed.');
+			//Inputs not working bug
+		}
+		/**/
+	});
+</script>
+</html>'#RYU94UE'
