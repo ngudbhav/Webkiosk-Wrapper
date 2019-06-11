@@ -2,18 +2,35 @@ const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron');
 const request = require('request');
 const cheerio = require('cheerio');
 var cryptr = require('cryptr');
+/*Load Datastores*/
 var Datastore = require('nedb')
 , settings = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/settings.db'})
-, logindb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/login.db'});
+, logindb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/login.db'})
+, attdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/att.db'})
+, pdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/p.db'})
+, ffdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/ff.db'})
+, odb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/o.db'})
+, padb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/pa.db'})
+, mdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/m.db'})
+, gdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/g.db'})
+, sdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/s.db'});
 settings.loadDatabase();
 logindb.loadDatabase();
+attdb.loadDatabase();
+pdb.loadDatabase();
+ffdb.loadDatabase();
+odb.loadDatabase();
+padb.loadDatabase();
+mdb.loadDatabase();
+gdb.loadDatabase();
+sdb.loadDatabase();
 var path = require('path');
 
 let loginScreen, mainScreen;
 
 var mainScreenMenu = [
 	{
-		label: 'File',
+		label: 'Account',
 		submenu: [
 			{
 				label: 'Home',
@@ -155,6 +172,8 @@ function createWindow(){
 		}
 		else{
 			if(results.length){
+				results[0].saved = true;
+				//fallback = true;
 				login(results[0]);
 			}
 			else{
@@ -193,7 +212,7 @@ function createMainScreen(){
 				settings.find({}, function(error, name){
 					if(error) throw error;
 					else{
-						mainScreen.webContents.send('name', name[0].name);
+						mainScreen.webContents.send('name', {name:name[0].name, fallback:fallback});
 					}
 				});
 				if(results[0].password[0] == '#' || results[0].password[0] == '&'){
@@ -218,14 +237,28 @@ var headers = {
 	'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.110 Safari/537.36',
 	'Content-Type' : 'application/x-www-form-urlencoded'
 }
+var fallback= false;
 var loginStatus = 0;
 /*APIS for actions in the menu bar*/
 function getAttendance(){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url:"https://webkiosk.jiit.ac.in/StudentFiles/Academic/StudentAttendanceList.jsp", headers:headers}, function(error, httpResponse, body){
 		if(error){
+			attdb.find({}, function(error, results){
+				if(error) throw error;
+				else{
+					if(results[0].attendance){
+						mainScreen.webContents.send('attendanceSummary', results[0].attendance);
+					}
+				}
+			});
 			//ECONNREFUSED
 			//getaddrinfo
 			console.log(error);
+			/*if('session timeout'){
+				//relogin(getattendance);
+				login();
+				getAttendance();
+			}*/
 		}
 		else{
 			var $ = cheerio.load(body);
@@ -262,13 +295,34 @@ function getAttendance(){
 				}
 			});
 			mainScreen.webContents.send('attendanceSummary', {subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac});
+			attdb.remove({}, {multi:true});
+			attdb.insert({attendance:{subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac}}, function(error, results){
+				if(error) throw error;
+			});
 		}
 	});
 }
 
 function getInfo(){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in/StudentFiles/PersonalFiles/StudPersonalInfo.jsp', headers:headers}, function(error, httpResponse, body){
-		if(error) throw error;
+		if(error){
+			pdb.find({}, function(error, results){
+				if(error) throw error;
+				else{
+					if(results[0].info){
+						mainScreen.webContents.send('info', results[0].info);
+					}
+				}
+			});
+			//ECONNREFUSED
+			//getaddrinfo
+			console.log(error);
+			/*if('session timeout'){
+				//relogin(getattendance);
+				login();
+				getAttendance();
+			}*/
+		}
 		else{
 			var $ = cheerio.load(body);
 			var tr = [];
@@ -278,13 +332,34 @@ function getInfo(){
 				}
 			});
 			mainScreen.webContents.send('info', {data:tr});
+			pdb.remove({}, {multi:true});
+			pdb.insert({info:{data:tr}}, function(error, results){
+				if(error) throw error;
+			});
 		}
 	});
 }
 
 function getFullInfo(){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/FAS/StudRegFee.jsp', headers:headers}, function(error, httpResponse, body){
-		if(error) throw error;
+		if(error){
+			ffdb.find({}, function(error, results){
+				if(error) throw error;
+				else{
+					if(results[0].fullInfo){
+						mainScreen.webContents.send('fullInfo', results[0].fullInfo);
+					}
+				}
+			});
+			//ECONNREFUSED
+			//getaddrinfo
+			console.log(error);
+			/*if('session timeout'){
+				//relogin(getattendance);
+				login();
+				getAttendance();
+			}*/
+		}
 		else{
 			var $ = cheerio.load(body);
 			var sem = [];
@@ -300,13 +375,34 @@ function getFullInfo(){
 				}
 			});
 			mainScreen.webContents.send('fullInfo', {sem:sem, feesAmount:feesAmount, paid:paid, dues:dues});
+			ffdb.remove({}, {multi:true});
+			ffdb.insert({fullInfo:{sem:sem, feesAmount:feesAmount, paid:paid, dues:dues}}, function(error, results){
+				if(error) throw error;
+			});
 		}
 	});
 }
 
 function getOnlineInfo(){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/pgfiles/OnlinePaymentHistory.jsp', headers:headers}, function(error, httpResponse, body){
-		if(error) throw error;
+		if(error){
+			odb.find({}, function(error, results){
+				if(error) throw error;
+				else{
+					if(results[0].onlineInfo){
+						mainScreen.webContents.send('onlineInfo', results[0].onlineInfo);
+					}
+				}
+			});
+			//ECONNREFUSED
+			//getaddrinfo
+			console.log(error);
+			/*if('session timeout'){
+				//relogin(getattendance);
+				login();
+				getAttendance();
+			}*/
+		}
 		else{
 			var $ = cheerio.load(body);
 			var sem = [];
@@ -324,13 +420,34 @@ function getOnlineInfo(){
 				}
 			});
 			mainScreen.webContents.send('onlineInfo', {sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status});
+			odb.remove({}, {multi:true});
+			odb.insert({onlineInfo:{sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status}}, function(error, results){
+				if(error) throw error;
+			});
 		}
 	});
 }
 
 function getPA(){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudCGPAReport.jsp', headers:headers}, function(error, httpResponse, body){
-		if(error) throw error;
+		if(error){
+			padb.find({}, function(error, results){
+				if(error) throw error;
+				else{
+					if(results[0].pa){
+						mainScreen.webContents.send('pa', results[0].pa);
+					}
+				}
+			});
+			//ECONNREFUSED
+			//getaddrinfo
+			console.log(error);
+			/*if('session timeout'){
+				//relogin(getattendance);
+				login();
+				getAttendance();
+			}*/
+		}
 		else{
 			var $ = cheerio.load(body);
 			var sem = [];
@@ -344,13 +461,34 @@ function getPA(){
 				cg.push($(this).children('td').eq(7).html());
 			});
 			mainScreen.webContents.send('pa', {sem:sem, credit:credit, sg:sg, cg:cg});
+			padb.remove({}, {multi:true});
+			padb.insert({pa:{sem:sem, credit:credit, sg:sg, cg:cg}}, function(error, results){
+				if(error) throw error;
+			});
 		}
 	});
 }
 
 function getMarks(){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventMarksView.jsp', headers:headers}, function(error, httpResponse, body){
-		if(error) throw error;
+		if(error){
+			mdb.find({}, function(error, results){
+				if(error) throw error;
+				else{
+					if(results[0].marks){
+						mainScreen.webContents.send('marks', results[0].marks);
+					}
+				}
+			});
+			//ECONNREFUSED
+			//getaddrinfo
+			console.log(error);
+			/*if('session timeout'){
+				//relogin(getattendance);
+				login();
+				getAttendance();
+			}*/
+		}
 		else{
 			var $ = cheerio.load(body);
 			let val = $("select[name='exam']").children('option').eq(1).attr('value');
@@ -364,6 +502,10 @@ function getMarks(){
 						tr.push($(this).html());
 					});
 					mainScreen.webContents.send('marks', {thead:thead, tr:tr});
+					mdb.remove({}, {multi:true});
+					mdb.insert({marks:{thead:thead, tr:tr}}, function(error, results){
+						if(error) throw error;
+					});
 				}
 			});
 		}
@@ -372,7 +514,24 @@ function getMarks(){
 
 function getGrades(){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventGradesView.jsp', headers:headers}, function(error, httpResponse, body){
-		if(error) throw error;
+		if(error){
+			gdb.find({}, function(error, results){
+				if(error) throw error;
+				else{
+					if(results[0].grade){
+						mainScreen.webContents.send('grade', results[0].grade);
+					}
+				}
+			});
+			//ECONNREFUSED
+			//getaddrinfo
+			console.log(error);
+			/*if('session timeout'){
+				//relogin(getattendance);
+				login();
+				getAttendance();
+			}*/
+		}
 		else{
 			var $ = cheerio.load(body);
 			let val = $("select[name='exam']").children('option').eq(1).attr('value');
@@ -387,6 +546,10 @@ function getGrades(){
 						grade.push($(this).children('td').eq(3).html());
 					});
 					mainScreen.webContents.send('grade', {course:course, grade:grade});
+					gdb.remove({}, {multi:true});
+					gdb.insert({grade:{course:course, grade:grade}}, function(error, results){
+						if(error) throw error;
+					});
 				}
 			});
 		}
@@ -395,7 +558,24 @@ function getGrades(){
 
 function getSubjects(){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url:"https://webkiosk.jiit.ac.in/StudentFiles/Academic/StudSubjectFaculty.jsp", headers:headers}, function(error, httpResponse, body){
-		if(error) throw error;
+		if(error){
+			sdb.find({}, function(error, results){
+				if(error) throw error;
+				else{
+					if(results[0].faculty){
+						mainScreen.webContents.send('faculty', results[0].faculty);
+					}
+				}
+			});
+			//ECONNREFUSED
+			//getaddrinfo
+			console.log(error);
+			/*if('session timeout'){
+				//relogin(getattendance);
+				login();
+				getAttendance();
+			}*/
+		}
 		else{
 			var $ = cheerio.load(body);
 			let option = [];
@@ -423,6 +603,10 @@ function getSubjects(){
 						}
 					});
 					mainScreen.webContents.send('faculty', {subject:subject, lecture:lecture, tutorial:tutorial, practical:practical});
+					sdb.remove({}, {multi:true});
+					sdb.insert({faculty:{subject:subject, lecture:lecture, tutorial:tutorial, practical:practical}}, function(error, results){
+						if(error) throw error;
+					});
 				}
 			});
 		}
@@ -438,13 +622,12 @@ function checkLoginStatus(item){
 				clear();
 			}
 			else{
-				createMainScreen();
+				if(!mainScreen){
+					createMainScreen();
+				}
 				if(loginScreen){
 					loginScreen.close();
 				}
-				settings.insert({name: item.name}, function(error, results){
-					if(error) throw error;
-				});
 				//Login creds saved
 				//Load main screen
 			}
@@ -458,7 +641,16 @@ function checkLoginStatus(item){
 
 function login(data){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in', headers: headers}, function(error, response, body){
-		if(error) throw error;
+		if(error){
+			if(data.saved){
+				loginStatus = 1;
+				fallback = true;
+				checkLoginStatus(data);
+			}
+			else{
+				throw error;
+			}
+		}
 		else{
 			var cookie = response.headers['set-cookie'];
 			var $ = cheerio.load(body);
@@ -513,6 +705,15 @@ function logout(){
 function clear(){
 	logout();
 	logindb.remove({}, { multi: true });
+	settings.remove({}, { multi: true });
+	attdb.remove({}, { multi: true });
+	pdb.remove({}, { multi: true });
+	ffdb.remove({}, { multi: true });
+	odb.remove({}, { multi: true });
+	padb.remove({}, { multi: true });
+	mdb.remove({}, { multi: true });
+	gdb.remove({}, { multi: true });
+	sdb.remove({}, { multi: true });
 	app.relaunch();
 	app.exit(0);
 }
@@ -533,4 +734,8 @@ app.on('activate', function(){
 
 ipcMain.on('login',function(e, item){
 	login(item);
+	settings.remove({}, {multi:true});
+	settings.insert({name: item.name}, function(error, results){
+		if(error) throw error;
+	});
 });

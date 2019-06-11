@@ -6,7 +6,7 @@
 	<title>Webkiosk Wrapper</title>
 	<link rel="stylesheet" href="../node_modules/mdbootstrap/css/bootstrap.min.css">
 	<link rel="stylesheet" href="../node_modules/mdbootstrap/css/mdb.min.css">
-	<<link rel="stylesheet" href="../static/css/font.css">
+	<link rel="stylesheet" href="../static/css/font.css">
 	<style>
 		.screen{
 			display: none;
@@ -518,8 +518,10 @@
 		$("#marks").html(tableString);
 	});
 	ipcRenderer.on('name', function(e, item){
-		console.log(item);
-		$("title").html('Webkiosk-Wrapper ('+item+')');
+		$("title").html('Webkiosk-Wrapper ('+item.name+')');
+		if(item.fallback){
+			alert('Previous Data loaded!');
+		}
 	});
 	ipcRenderer.on('windowShift', function(e, item){
 		$(".screen").animate({
