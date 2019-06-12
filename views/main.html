@@ -54,7 +54,7 @@
 				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
 					<div></div>
 					<h3>
-						<a href="" class="white-text mx-3">Personal Information</a>
+						<a class="white-text mx-3">Personal Information</a>
 					</h3>
 					<div></div>
 				</div>
@@ -96,7 +96,7 @@
 				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
 					<div></div>
 					<h3>
-						<a href="" class="white-text mx-3">Full Fees History</a>
+						<a class="white-text mx-3">Full Fees History</a>
 					</h3>
 					<div></div>
 				</div>
@@ -138,7 +138,7 @@
 				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
 					<div></div>
 					<h3>
-						<a href="" class="white-text mx-3">Online Fees History</a>
+						<a class="white-text mx-3">Online Fees History</a>
 					</h3>
 					<div></div>
 				</div>
@@ -185,7 +185,7 @@
 				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
 					<div></div>
 					<h3>
-						<a href="" class="white-text mx-3">View CGPA/SGPA</a>
+						<a class="white-text mx-3">View CGPA/SGPA</a>
 					</h3>
 					<div></div>
 				</div>
@@ -227,7 +227,7 @@
 				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
 					<div></div>
 					<h3>
-						<a href="" class="white-text mx-3">Exam Grades</a>
+						<a class="white-text mx-3">Exam Grades</a>
 					</h3>
 					<div></div>
 				</div>
@@ -261,7 +261,7 @@
 				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
 					<div></div>
 					<h3>
-						<a href="" class="white-text mx-3">Exam Marks</a>
+						<a class="white-text mx-3">Exam Marks</a>
 					</h3>
 					<div></div>
 				</div>
@@ -284,7 +284,7 @@
 				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
 					<div></div>
 					<h3>
-						<a href="" class="white-text mx-3">Subjects and Faculties</a>
+						<a class="white-text mx-3">Subjects and Faculties</a>
 					</h3>
 					<div></div>
 				</div>
@@ -328,7 +328,7 @@
 				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
 					<div></div>
 					<h3>
-						<a href="" class="white-text mx-3">Attendance Summary</a>
+						<a class="white-text mx-3">Attendance Summary</a>
 					</h3>
 					<div></div>
 				</div>
@@ -420,20 +420,20 @@
 		<br><br>
 		<div class="row" style="position: fixed;left: 0;bottom: 0;background-color: #E8EBEF;width:100%;z-index:3;cursor: default;">
 			<div class="col-2">
-				<h6 data-toggle="tooltip" data-placement="top" title="Buy me a Coffee!">
+				<h6>
 					<center>NGUdbhav</center>
 				</h6>
 			</div>
 			<div class="col-4 offset-2" onclick="checkUpdates();">
-				<h6 data-toggle="tooltip" data-placement="top" title="Check for updates">
+				<h6 title="Check for updates">
 					<center>
 						<a style="cursor:pointer;" id="updates">Connecting...</a>
 					</center>
 				</h6>
 			</div>
 			<div class="col-1 offset-3">
-				<h6 id="status" data-toggle="tooltip" data-placement="top" title="Current Status">
-					<center>Idle</center>
+				<h6 id="status">
+					<center>Checking...</center>
 				</h6>
 			</div>
 		</div>
@@ -445,6 +445,17 @@
 	window.Bootstrap = require('bootstrap');
 	var electron = require('electron');
 	var {ipcRenderer} = electron;
+	
+
+	function checkUpdates(){
+		$("#updates").html('Connecting...');
+		ipcRenderer.send('update', 'null');
+	}
+	ipcRenderer.on('updateCheckup', function(e, item){
+		$("#updates").html('Check for updates');
+	});
+
+
 	$("input[type='submit']").click(function(){
 		ipcRenderer.send('login', {enroll:$("input[name='enroll']").val(),cat:$("input[name='cat']").val(),dob:$("input[name='dob']").val(),password:$("input[name='password']").val()});
 	});
@@ -465,6 +476,14 @@
 		}
 		tableString.replace(null, 'NA');
 		$("#summary").html(tableString);
+		if(item.date){
+			$("#status").html('Saved');
+			$("#status").attr('title', new Date(item.date));
+		}
+		else{
+			$("#status").html('Live');
+			$("#status").attr('title', 'Updated Now');
+		}
 	});
 	ipcRenderer.on('info', function(e, item){
 		var tableString;
@@ -520,7 +539,7 @@
 	ipcRenderer.on('name', function(e, item){
 		$("title").html('Webkiosk-Wrapper ('+item.name+')');
 		if(item.fallback){
-			alert('Previous Data loaded!');
+			//Fallback to login
 		}
 	});
 	ipcRenderer.on('windowShift', function(e, item){

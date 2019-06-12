@@ -2,7 +2,7 @@
 ```sh
 sudo npm install -g electron
 git clone https://github.com/ngudbhav/Webkiosk-Wrapper.git
-cd excel-to-mysql-electron-app
+cd Webkiosk-Wrapper
 npm install
 npm start
 ```

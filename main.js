@@ -1,7 +1,8 @@
 const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron');
 const request = require('request');
 const cheerio = require('cheerio');
-var cryptr = require('cryptr');
+const cryptr = require('cryptr');
+const notifier = require('node-notifier');
 /*Load Datastores*/
 var Datastore = require('nedb')
 , settings = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/settings.db'})
@@ -162,6 +163,71 @@ var mainScreenMenu = [
 	}
 ];
 
+/*Update checkup start*/
+function checkUpdates(e){
+	request('https://api.github.com/repos/ngudbhav/Webkiosk-Wrapper/releases/latest', {headers: {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 '}}, function(error, html, body){
+		if(!error){
+			var v = app.getVersion().replace(' ', '');
+			if(JSON.parse(body).tag_name){
+				var latestV = JSON.parse(body).tag_name.replace('v', '');
+				var changeLog = JSON.parse(body).body.replace('<strong>Changelog</strong>', 'Update available. Here are the changes:\n');
+				if(latestV!=v){
+					dialog.showMessageBox(
+						{
+							type: 'info',
+							buttons:['Open Browser to download link', 'Close'],
+							title: 'Update Available',
+							detail: changeLog,
+						}, function(response){
+							if(response === 0){
+								shell.openExternal('https://github.com/ngudbhav/Webkiosk-Wrapper/releases/latest');
+							}
+						}
+					);
+					notifier.notify(
+					{
+						appName: "NGUdbhav.webkiosk",
+						title: 'Update Available',
+						message: 'A new version is available. Click to open browser and download.',
+						icon: path.join(__dirname, 'images', 'logo.ico'),
+						sound: true,
+						wait:true
+					});
+					notifier.on('click', function(notifierObject, options) {
+						shell.openExternal('https://github.com/ngudbhav/Webkiosk-Wrapper/releases/latest');
+					});
+				}
+				else{
+					if(e === 'f'){
+						dialog.showMessageBox({
+							type: 'info',
+							buttons:['Close'],
+							title: 'No update available!',
+							detail: 'You already have the latest version installed.'
+						});
+					}
+				}
+			}
+			mainScreen.webContents.send('updateCheckup', null);
+		}
+		else{
+			if(e === 'f'){
+				dialog.showMessageBox({
+					type: 'error',
+					buttons:['Close'],
+					title: 'Update check failed!',
+					detail: 'Failed to connect to the update server. Please check your internet connection'
+				});
+			}
+			mainScreen.webContents.send('updateCheckup', null);
+		}
+	});
+}
+ipcMain.on('update', function(e, item){
+	checkUpdates('f');
+});
+/*Update checkup end*/
+
 function createWindow(){
 	logindb.find({}, function(error, results){
 		if(error){
@@ -189,8 +255,8 @@ function createLoginScreen(){
 	loginScreen = new BrowserWindow({width: 1000, height: 600, webPreferences: {
 		nodeIntegration: true
 	}});
-	loginScreen.loadFile('views/login.html');
-	loginScreen.openDevTools();
+	loginScreen.loadFile(path.join(__dirname, 'views', 'login.html'));
+	//loginScreen.openDevTools();
 	loginScreen.setMenu(null);
 	loginScreen.on('closed', function(){
 		loginScreen = null;
@@ -200,8 +266,8 @@ function createMainScreen(){
 	mainScreen = new BrowserWindow({width: 1100, height: 600, webPreferences: {
 		nodeIntegration: true
 	}});
-	mainScreen.loadFile('views/main.html');
-	mainScreen.openDevTools();
+	mainScreen.loadFile(path.join(__dirname, 'views', 'main.html'));
+	//mainScreen.openDevTools();
 	mainScreen.on('closed', function(){
 		mainScreen = null;
 	});
@@ -225,6 +291,7 @@ function createMainScreen(){
 					getGrades();
 					getMarks();
 					getSubjects();
+					checkUpdates();
 				}
 				else{
 					mainScreen.webContents.send('parentalLoginStatus', {status:0});
@@ -296,7 +363,7 @@ function getAttendance(){
 			});
 			mainScreen.webContents.send('attendanceSummary', {subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac});
 			attdb.remove({}, {multi:true});
-			attdb.insert({attendance:{subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac}}, function(error, results){
+			attdb.insert({attendance:{subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac, date:new Date()}}, function(error, results){
 				if(error) throw error;
 			});
 		}
@@ -333,7 +400,7 @@ function getInfo(){
 			});
 			mainScreen.webContents.send('info', {data:tr});
 			pdb.remove({}, {multi:true});
-			pdb.insert({info:{data:tr}}, function(error, results){
+			pdb.insert({info:{data:tr, date:new Date()}}, function(error, results){
 				if(error) throw error;
 			});
 		}
@@ -376,7 +443,7 @@ function getFullInfo(){
 			});
 			mainScreen.webContents.send('fullInfo', {sem:sem, feesAmount:feesAmount, paid:paid, dues:dues});
 			ffdb.remove({}, {multi:true});
-			ffdb.insert({fullInfo:{sem:sem, feesAmount:feesAmount, paid:paid, dues:dues}}, function(error, results){
+			ffdb.insert({fullInfo:{sem:sem, feesAmount:feesAmount, paid:paid, dues:dues, date:new Date()}}, function(error, results){
 				if(error) throw error;
 			});
 		}
@@ -421,7 +488,7 @@ function getOnlineInfo(){
 			});
 			mainScreen.webContents.send('onlineInfo', {sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status});
 			odb.remove({}, {multi:true});
-			odb.insert({onlineInfo:{sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status}}, function(error, results){
+			odb.insert({onlineInfo:{sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status, date:new Date()}}, function(error, results){
 				if(error) throw error;
 			});
 		}
@@ -462,7 +529,7 @@ function getPA(){
 			});
 			mainScreen.webContents.send('pa', {sem:sem, credit:credit, sg:sg, cg:cg});
 			padb.remove({}, {multi:true});
-			padb.insert({pa:{sem:sem, credit:credit, sg:sg, cg:cg}}, function(error, results){
+			padb.insert({pa:{sem:sem, credit:credit, sg:sg, cg:cg, date:new Date()}}, function(error, results){
 				if(error) throw error;
 			});
 		}
@@ -503,7 +570,7 @@ function getMarks(){
 					});
 					mainScreen.webContents.send('marks', {thead:thead, tr:tr});
 					mdb.remove({}, {multi:true});
-					mdb.insert({marks:{thead:thead, tr:tr}}, function(error, results){
+					mdb.insert({marks:{thead:thead, tr:tr, date:new Date()}}, function(error, results){
 						if(error) throw error;
 					});
 				}
@@ -547,7 +614,7 @@ function getGrades(){
 					});
 					mainScreen.webContents.send('grade', {course:course, grade:grade});
 					gdb.remove({}, {multi:true});
-					gdb.insert({grade:{course:course, grade:grade}}, function(error, results){
+					gdb.insert({grade:{course:course, grade:grade, date:new Date()}}, function(error, results){
 						if(error) throw error;
 					});
 				}
@@ -604,7 +671,7 @@ function getSubjects(){
 					});
 					mainScreen.webContents.send('faculty', {subject:subject, lecture:lecture, tutorial:tutorial, practical:practical});
 					sdb.remove({}, {multi:true});
-					sdb.insert({faculty:{subject:subject, lecture:lecture, tutorial:tutorial, practical:practical}}, function(error, results){
+					sdb.insert({faculty:{subject:subject, lecture:lecture, tutorial:tutorial, practical:practical, date:new Date()}}, function(error, results){
 						if(error) throw error;
 					});
 				}
@@ -692,6 +759,7 @@ function login(data){
 		}
 	});
 }
+//Logging out not working
 
 function logout(){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in/CommonFiles/SignOut.jsp', headers:headers}, function(error, res, body){

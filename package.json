@@ -4,7 +4,6 @@
   "description": "A Webkiosk Wrapper for desktop.",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=images/logo.icns --prune=true --out=release-builds",
     "package-win": "electron-packager . TriCO --overwrite --asar=true --platform=win32 --arch=x64 --icon=images/logo.ico --prune=true --out=release-builds --version-string.CompanyName=NGUdbhav --version-string.FileDescription=Application --version-string.ProductName=\"Webskiosk-Wrapper\"",
@@ -20,6 +19,7 @@
     "jquery": "^3.4.1",
     "mdbootstrap": "^4.8.2",
     "nedb": "^1.8.0",
+    "node-notifier": "^5.4.0",
     "popper.js": "^1.15.0",
     "request": "^2.88.0"
   }
