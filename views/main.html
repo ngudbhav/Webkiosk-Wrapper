@@ -79,7 +79,11 @@
 								</tr>
 							</thead>
 							<tbody id="pinfo">
-								
+								<tr>
+									<td>
+										Loading...
+									</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
@@ -126,7 +130,11 @@
 								</tr>
 							</thead>
 							<tbody id="fullSummary">
-								
+								<tr>
+									<td>
+										Loading...
+									</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
@@ -173,7 +181,11 @@
 								</tr>
 							</thead>
 							<tbody id="onlineSummary">
-								
+								<tr>
+									<td>
+										Loading...
+									</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
@@ -215,7 +227,11 @@
 								</tr>
 							</thead>
 							<tbody id="pa">
-								
+								<tr>
+									<td>
+										Loading...
+									</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
@@ -223,6 +239,16 @@
 			</div>
 		</div>
 		<div class="screen" id="getGrade">
+			<div class="row">
+				<div class="col-12">
+					<center>
+						<div class="btn-group btn-group-toggle" data-toggle="buttons" id="gradesSwitch">
+							
+						</div>
+					</center>
+				</div>
+			</div>
+			<br>
 			<div class="card card-cascade narrower">
 				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
 					<div></div>
@@ -248,8 +274,12 @@
 									</th>
 								</tr>
 							</thead>
-							<tbody id="grade">
-								
+							<tbody id="grades">
+								<tr>
+									<td>
+										Loading...
+									</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
@@ -257,6 +287,16 @@
 			</div>
 		</div>
 		<div class="screen" id="getMarks">
+			<div class="row">
+				<div class="col-12">
+					<center>
+						<div class="btn-group btn-group-toggle" data-toggle="buttons" id="marksSwitch">
+							
+						</div>
+					</center>
+				</div>
+			</div>
+			<br>
 			<div class="card card-cascade narrower">
 				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
 					<div></div>
@@ -272,7 +312,11 @@
 								
 							</thead>
 							<tbody id="marks">
-								
+								<tr>
+									<td>
+										Loading...
+									</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
@@ -280,6 +324,16 @@
 			</div>
 		</div>
 		<div class="screen" id="getFaculty">
+			<div class="row">
+				<div class="col-12">
+					<center>
+						<div class="btn-group btn-group-toggle" data-toggle="buttons" id="facultySwitch">
+							
+						</div>
+					</center>
+				</div>
+			</div>
+			<br>
 			<div class="card card-cascade narrower">
 				<div class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
 					<div></div>
@@ -316,7 +370,11 @@
 								</tr>
 							</thead>
 							<tbody id="faculty">
-								
+								<tr>
+									<td>
+										Loading...
+									</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
@@ -368,7 +426,11 @@
 								</tr>
 							</thead>
 							<tbody id="summary">
-								
+								<tr>
+									<td>
+										Loading...
+									</td>
+								</tr>
 							</tbody>
 						</table>
 					</div>
@@ -519,7 +581,7 @@
 		for(let i in item.course){
 			tableString+='<tr><td>'+item.course[i]+'</td><td>'+item.grade[i]+'</td></tr>';
 		}
-		$("#grade").html(tableString);
+		$("#grades").html(tableString);
 	});
 	ipcRenderer.on('faculty', function(e, item){
 		var tableString;
@@ -527,6 +589,29 @@
 			tableString+='<tr><td>'+item.subject[i]+'</td><td>'+item.lecture[i]+'</td><td>'+item.tutorial[i]+'</td><td>'+item.practical[i]+'</td></tr>';
 		}
 		$("#faculty").html(tableString);
+	});
+	ipcRenderer.on('switch', function(e, item){
+		console.log(item.type)
+		let switchString='';
+		for(let i in item.option){
+			if(item.type == 'faculty'){
+				if(i == item.option.length-1){
+					switchString+='<label class="btn btn-primary form-check-label waves-effect waves-light active" onclick="faculty(this)"><input class="form-check-input" type="radio" name="'+item.type+'" id="option'+item.type+i+'" autocomplete="off" checked value="'+item.option[i]+'">'+item.option[i]+'</label>';
+				}
+				else{
+					switchString+='<label class="btn btn-primary form-check-label waves-effect waves-light" onclick="faculty(this)"><input class="form-check-input" type="radio" name="'+item.type+'" id="option'+item.type+i+'" autocomplete="off" checked value="'+item.option[i]+'">'+item.option[i]+'</label>';
+				}
+			}
+			else{
+				if(i == 0){
+					switchString+='<label class="btn btn-primary form-check-label waves-effect waves-light active" onclick="faculty(this)"><input class="form-check-input" type="radio" name="'+item.type+'" id="option'+item.type+i+'" autocomplete="off" checked value="'+item.option[i]+'">'+item.option[i]+'</label>';
+				}
+				else{
+					switchString+='<label class="btn btn-primary form-check-label waves-effect waves-light" onclick="faculty(this)"><input class="form-check-input" type="radio" name="'+item.type+'" id="option'+item.type+i+'" autocomplete="off" checked value="'+item.option[i]+'">'+item.option[i]+'</label>';
+				}
+			}
+		}
+		$("#"+item.type+"Switch").html(switchString);
 	});
 	ipcRenderer.on('marks', function(e, item){
 		var tableString;
@@ -601,5 +686,21 @@
 				break;
 		}
 	});
+	function faculty(e){
+		var type = $(e).children('input').attr('name');
+		$("#"+type+"").html('<tr><td>Fetching...</td></tr>');
+		//ipcRenderer.send('faculty', $(e).children('input').val());
+		$("#"+type+"Switch").children('label').removeClass('active');
+		$(e).addClass('active');
+		if(type == 'faculty'){
+			ipcRenderer.send('faculty', $(e).children('input').val());
+		}
+		else if(type == 'grades'){
+			ipcRenderer.send('grades', $(e).children('input').val());
+		}
+		else if(type == 'marks'){
+			ipcRenderer.send('marks', $(e).children('input').val());
+		}
+	}
 </script>
 </html>

@@ -267,7 +267,7 @@ function createMainScreen(){
 		nodeIntegration: true
 	}});
 	mainScreen.loadFile(path.join(__dirname, 'views', 'main.html'));
-	//mainScreen.openDevTools();
+	mainScreen.openDevTools();
 	mainScreen.on('closed', function(){
 		mainScreen = null;
 	});
@@ -536,7 +536,7 @@ function getPA(){
 	});
 }
 
-function getMarks(){
+function getMarks(e){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventMarksView.jsp', headers:headers}, function(error, httpResponse, body){
 		if(error){
 			mdb.find({}, function(error, results){
@@ -559,6 +559,19 @@ function getMarks(){
 		else{
 			var $ = cheerio.load(body);
 			let val = $("select[name='exam']").children('option').eq(1).attr('value');
+			if(e){
+				val= e;
+			}
+			else{
+				let option = [];
+				$("select[name='exam']").children('option').each(function(i, item){
+					var t = $(this).html();
+					if(t[0] == '2'){
+						option.push(t);
+					}
+				});
+				mainScreen.webContents.send('switch', {option:option, type:'marks'});
+			}
 			request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventMarksView.jsp?x=&exam='+val, headers:headers}, function(error, httpResponse, body){
 				if(error) throw error;
 				else{
@@ -579,7 +592,7 @@ function getMarks(){
 	});
 }
 
-function getGrades(){
+function getGrades(e){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventGradesView.jsp', headers:headers}, function(error, httpResponse, body){
 		if(error){
 			gdb.find({}, function(error, results){
@@ -602,6 +615,19 @@ function getGrades(){
 		else{
 			var $ = cheerio.load(body);
 			let val = $("select[name='exam']").children('option').eq(1).attr('value');
+			if(e){
+				val = e;
+			}
+			else{
+				let option = [];
+				$("select[name='exam']").children('option').each(function(i, item){
+					var t = $(this).html();
+					if(t[0] == '2'){
+						option.push(t);
+					}
+				});
+				mainScreen.webContents.send('switch', {option:option, type:'grades'});
+			}
 			request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventGradesView.jsp?x=&exam='+val, headers:headers}, function(error, httpResponse, body){
 				if(error) throw error;
 				else{
@@ -623,7 +649,7 @@ function getGrades(){
 	});
 }
 
-function getSubjects(){
+function getSubjects(e){
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url:"https://webkiosk.jiit.ac.in/StudentFiles/Academic/StudSubjectFaculty.jsp", headers:headers}, function(error, httpResponse, body){
 		if(error){
 			sdb.find({}, function(error, results){
@@ -644,6 +670,7 @@ function getSubjects(){
 			}*/
 		}
 		else{
+			console.log(body);
 			var $ = cheerio.load(body);
 			let option = [];
 			$("select[name='exam']").children('option').each(function(i, item){
@@ -652,7 +679,13 @@ function getSubjects(){
 					option.push(t);
 				}
 			});
-			console.log(option[option.length-1]);
+			if(e){
+				option[option.length-1] = e;
+			}
+			else{
+				mainScreen.webContents.send('switch', {option:option, type:'faculty'});
+			}
+			console.log(option);
 			request({secureProtocol: 'TLSv1_method', strictSSL: false, url:"https://webkiosk.jiit.ac.in/StudentFiles/Academic/StudSubjectFaculty.jsp?x=&exam="+option[option.length-1], headers:headers}, function(error, httpResponse, body){
 				if(error) throw error;
 				else{
@@ -806,4 +839,13 @@ ipcMain.on('login',function(e, item){
 	settings.insert({name: item.name}, function(error, results){
 		if(error) throw error;
 	});
+});
+ipcMain.on('faculty', function(e, item){
+	getSubjects(item);
+});
+ipcMain.on('grades', function(e, item){
+	getGrades(item);
+});
+ipcMain.on('marks', function(e, item){
+	getMarks(item);
 });
