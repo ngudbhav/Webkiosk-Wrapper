@@ -328,44 +328,50 @@ function getAttendance(){
 			}*/
 		}
 		else{
-			var $ = cheerio.load(body);
-			var subjects = [];
-			var lect_and_tut = [];
-			var lect = [];
-			var tut = [];
-			var prac = [];
-			$('#table-1>tbody>tr').each(function(i, item){
-				subjects.push($(this).children('td').eq(1).html());
-				if($(this).children('td').eq(2).children('a')!=undefined){
-					lect_and_tut.push($(this).children('td').eq(2).children('a').html());
-				}
-				else{
-					lect_and_tut.push('NA');
-				}
-				if($(this).children('td').eq(3).children('a')!=undefined){
-					lect.push($(this).children('td').eq(3).children('a').children('font').html());
-				}
-				else{
-					lect.push('NA');
-				}
-				if($(this).children('td').eq(4).children('a')!=undefined){
-					tut.push($(this).children('td').eq(4).children('a').html());
-				}
-				else{
-					tut.push('NA');
-				}
-				if($(this).children('td').eq(5).children('a')!=undefined){
-					prac.push($(this).children('td').eq(5).children('a').html());
-				}
-				else{
-					prac.push('NA');
-				}
-			});
-			mainScreen.webContents.send('attendanceSummary', {subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac});
-			attdb.remove({}, {multi:true});
-			attdb.insert({attendance:{subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac, date:new Date()}}, function(error, results){
-				if(error) throw error;
-			});
+			if(body.includes('Session Timeout')){
+				createWindow();
+				getAttendance();
+			}
+			else{
+				var $ = cheerio.load(body);
+				var subjects = [];
+				var lect_and_tut = [];
+				var lect = [];
+				var tut = [];
+				var prac = [];
+				$('#table-1>tbody>tr').each(function(i, item){
+					subjects.push($(this).children('td').eq(1).html());
+					if($(this).children('td').eq(2).children('a')!=undefined){
+						lect_and_tut.push($(this).children('td').eq(2).children('a').html());
+					}
+					else{
+						lect_and_tut.push('NA');
+					}
+					if($(this).children('td').eq(3).children('a')!=undefined){
+						lect.push($(this).children('td').eq(3).children('a').children('font').html());
+					}
+					else{
+						lect.push('NA');
+					}
+					if($(this).children('td').eq(4).children('a')!=undefined){
+						tut.push($(this).children('td').eq(4).children('a').html());
+					}
+					else{
+						tut.push('NA');
+					}
+					if($(this).children('td').eq(5).children('a')!=undefined){
+						prac.push($(this).children('td').eq(5).children('a').html());
+					}
+					else{
+						prac.push('NA');
+					}
+				});
+				mainScreen.webContents.send('attendanceSummary', {subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac});
+				attdb.remove({}, {multi:true});
+				attdb.insert({attendance:{subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac, date:new Date()}}, function(error, results){
+					if(error) throw error;
+				});
+			}
 		}
 	});
 }
@@ -391,18 +397,24 @@ function getInfo(){
 			}*/
 		}
 		else{
-			var $ = cheerio.load(body);
-			var tr = [];
-			$("table[cellpadding='2']>tbody").children('tr').each(function(i, item){
-				if(i !==0 && i!==7 && i!==9 && i<12){
-					tr.push($(this).children('td').eq(1).html());
-				}
-			});
-			mainScreen.webContents.send('info', {data:tr});
-			pdb.remove({}, {multi:true});
-			pdb.insert({info:{data:tr, date:new Date()}}, function(error, results){
-				if(error) throw error;
-			});
+			if(body.includes('Session Timeout')){
+				createWindow();
+				getInfo();
+			}
+			else{
+				var $ = cheerio.load(body);
+				var tr = [];
+				$("table[cellpadding='2']>tbody").children('tr').each(function(i, item){
+					if(i !==0 && i!==7 && i!==9 && i<12){
+						tr.push($(this).children('td').eq(1).html());
+					}
+				});
+				mainScreen.webContents.send('info', {data:tr});
+				pdb.remove({}, {multi:true});
+				pdb.insert({info:{data:tr, date:new Date()}}, function(error, results){
+					if(error) throw error;
+				});
+			}
 		}
 	});
 }
@@ -428,24 +440,30 @@ function getFullInfo(){
 			}*/
 		}
 		else{
-			var $ = cheerio.load(body);
-			var sem = [];
-			var feesAmount = [];
-			var paid = [];
-			var dues = [];
-			$("#table-1>tbody").children('tr').each(function(i, item){
-				if(i<8){
-					sem.push($(this).children('td').eq(0).html());
-					feesAmount.push($(this).children('td').eq(2).html());
-					paid.push($(this).children('td').eq(4).html());
-					dues.push($(this).children('td').eq(5).html());
-				}
-			});
-			mainScreen.webContents.send('fullInfo', {sem:sem, feesAmount:feesAmount, paid:paid, dues:dues});
-			ffdb.remove({}, {multi:true});
-			ffdb.insert({fullInfo:{sem:sem, feesAmount:feesAmount, paid:paid, dues:dues, date:new Date()}}, function(error, results){
-				if(error) throw error;
-			});
+			if(body.includes('Session Timeout')){
+				createWindow();
+				getFullInfo();
+			}
+			else{
+				var $ = cheerio.load(body);
+				var sem = [];
+				var feesAmount = [];
+				var paid = [];
+				var dues = [];
+				$("#table-1>tbody").children('tr').each(function(i, item){
+					if(i<8){
+						sem.push($(this).children('td').eq(0).html());
+						feesAmount.push($(this).children('td').eq(2).html());
+						paid.push($(this).children('td').eq(4).html());
+						dues.push($(this).children('td').eq(5).html());
+					}
+				});
+				mainScreen.webContents.send('fullInfo', {sem:sem, feesAmount:feesAmount, paid:paid, dues:dues});
+				ffdb.remove({}, {multi:true});
+				ffdb.insert({fullInfo:{sem:sem, feesAmount:feesAmount, paid:paid, dues:dues, date:new Date()}}, function(error, results){
+					if(error) throw error;
+				});
+			}
 		}
 	});
 }
@@ -471,26 +489,32 @@ function getOnlineInfo(){
 			}*/
 		}
 		else{
-			var $ = cheerio.load(body);
-			var sem = [];
-			var feesAmount = [];
-			var paid = [];
-			var trxn = [];
-			var status = [];
-			$("table>tbody").children('tr').each(function(i, item){
-				if(i>=2){
-					sem.push($(this).children('td').eq(1).html());
-					feesAmount.push($(this).children('td').eq(3).html());
-					paid.push($(this).children('td').eq(4).html());
-					trxn.push($(this).children('td').eq(5).html());
-					status.push($(this).children('td').eq(7).html());
-				}
-			});
-			mainScreen.webContents.send('onlineInfo', {sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status});
-			odb.remove({}, {multi:true});
-			odb.insert({onlineInfo:{sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status, date:new Date()}}, function(error, results){
-				if(error) throw error;
-			});
+			if(body.includes('Session Timeout')){
+				createWindow();
+				getOnlineInfo();
+			}
+			else{
+				var $ = cheerio.load(body);
+				var sem = [];
+				var feesAmount = [];
+				var paid = [];
+				var trxn = [];
+				var status = [];
+				$("table>tbody").children('tr').each(function(i, item){
+					if(i>=2){
+						sem.push($(this).children('td').eq(1).html());
+						feesAmount.push($(this).children('td').eq(3).html());
+						paid.push($(this).children('td').eq(4).html());
+						trxn.push($(this).children('td').eq(5).html());
+						status.push($(this).children('td').eq(7).html());
+					}
+				});
+				mainScreen.webContents.send('onlineInfo', {sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status});
+				odb.remove({}, {multi:true});
+				odb.insert({onlineInfo:{sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status, date:new Date()}}, function(error, results){
+					if(error) throw error;
+				});
+			}
 		}
 	});
 }
@@ -516,22 +540,28 @@ function getPA(){
 			}*/
 		}
 		else{
-			var $ = cheerio.load(body);
-			var sem = [];
-			var credit = [];
-			var sg = [];
-			var cg = [];
-			$("#table-1>tbody").children('tr').each(function(i, item){
-				sem.push($(this).children('td').eq(0).html());
-				credit.push($(this).children('td').eq(2).html());
-				sg.push($(this).children('td').eq(6).html());
-				cg.push($(this).children('td').eq(7).html());
-			});
-			mainScreen.webContents.send('pa', {sem:sem, credit:credit, sg:sg, cg:cg});
-			padb.remove({}, {multi:true});
-			padb.insert({pa:{sem:sem, credit:credit, sg:sg, cg:cg, date:new Date()}}, function(error, results){
-				if(error) throw error;
-			});
+			if(body.includes('Session Timeout')){
+				createWindow();
+				getPA();
+			}
+			else{
+				var $ = cheerio.load(body);
+				var sem = [];
+				var credit = [];
+				var sg = [];
+				var cg = [];
+				$("#table-1>tbody").children('tr').each(function(i, item){
+					sem.push($(this).children('td').eq(0).html());
+					credit.push($(this).children('td').eq(2).html());
+					sg.push($(this).children('td').eq(6).html());
+					cg.push($(this).children('td').eq(7).html());
+				});
+				mainScreen.webContents.send('pa', {sem:sem, credit:credit, sg:sg, cg:cg});
+				padb.remove({}, {multi:true});
+				padb.insert({pa:{sem:sem, credit:credit, sg:sg, cg:cg, date:new Date()}}, function(error, results){
+					if(error) throw error;
+				});
+			}
 		}
 	});
 }
@@ -557,37 +587,43 @@ function getMarks(e){
 			}*/
 		}
 		else{
-			var $ = cheerio.load(body);
-			let val = $("select[name='exam']").children('option').eq(1).attr('value');
-			if(e){
-				val= e;
+			if(body.includes('Session Timeout')){
+				createWindow();
+				getMarks(e);
 			}
 			else{
-				let option = [];
-				$("select[name='exam']").children('option').each(function(i, item){
-					var t = $(this).html();
-					if(t[0] == '2'){
-						option.push(t);
+				var $ = cheerio.load(body);
+				let val = $("select[name='exam']").children('option').eq(1).attr('value');
+				if(e){
+					val= e;
+				}
+				else{
+					let option = [];
+					$("select[name='exam']").children('option').each(function(i, item){
+						var t = $(this).html();
+						if(t[0] == '2'){
+							option.push(t);
+						}
+					});
+					mainScreen.webContents.send('switch', {option:option, type:'marks'});
+				}
+				request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventMarksView.jsp?x=&exam='+val, headers:headers}, function(error, httpResponse, body){
+					if(error) throw error;
+					else{
+						$ = cheerio.load(body);
+						var thead = $("#table-1>thead").children('tr').html();
+						var tr = [];
+						$("#table-1>tbody").children('tr').each(function(i, item){
+							tr.push($(this).html());
+						});
+						mainScreen.webContents.send('marks', {thead:thead, tr:tr});
+						mdb.remove({}, {multi:true});
+						mdb.insert({marks:{thead:thead, tr:tr, date:new Date()}}, function(error, results){
+							if(error) throw error;
+						});
 					}
 				});
-				mainScreen.webContents.send('switch', {option:option, type:'marks'});
 			}
-			request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventMarksView.jsp?x=&exam='+val, headers:headers}, function(error, httpResponse, body){
-				if(error) throw error;
-				else{
-					$ = cheerio.load(body);
-					var thead = $("#table-1>thead").children('tr').html();
-					var tr = [];
-					$("#table-1>tbody").children('tr').each(function(i, item){
-						tr.push($(this).html());
-					});
-					mainScreen.webContents.send('marks', {thead:thead, tr:tr});
-					mdb.remove({}, {multi:true});
-					mdb.insert({marks:{thead:thead, tr:tr, date:new Date()}}, function(error, results){
-						if(error) throw error;
-					});
-				}
-			});
 		}
 	});
 }
@@ -613,38 +649,44 @@ function getGrades(e){
 			}*/
 		}
 		else{
-			var $ = cheerio.load(body);
-			let val = $("select[name='exam']").children('option').eq(1).attr('value');
-			if(e){
-				val = e;
+			if(body.includes('Session Timeout')){
+				createWindow();
+				getGrades(e);
 			}
 			else{
-				let option = [];
-				$("select[name='exam']").children('option').each(function(i, item){
-					var t = $(this).html();
-					if(t[0] == '2'){
-						option.push(t);
+				var $ = cheerio.load(body);
+				let val = $("select[name='exam']").children('option').eq(1).attr('value');
+				if(e){
+					val = e;
+				}
+				else{
+					let option = [];
+					$("select[name='exam']").children('option').each(function(i, item){
+						var t = $(this).html();
+						if(t[0] == '2'){
+							option.push(t);
+						}
+					});
+					mainScreen.webContents.send('switch', {option:option, type:'grades'});
+				}
+				request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventGradesView.jsp?x=&exam='+val, headers:headers}, function(error, httpResponse, body){
+					if(error) throw error;
+					else{
+						$ = cheerio.load(body);
+						var course = [];
+						var grade = [];
+						$("#table-1>tbody").children('tr').each(function(i, item){
+							course.push($(this).children('td').eq(1).html());
+							grade.push($(this).children('td').eq(3).html());
+						});
+						mainScreen.webContents.send('grade', {course:course, grade:grade});
+						gdb.remove({}, {multi:true});
+						gdb.insert({grade:{course:course, grade:grade, date:new Date()}}, function(error, results){
+							if(error) throw error;
+						});
 					}
 				});
-				mainScreen.webContents.send('switch', {option:option, type:'grades'});
 			}
-			request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventGradesView.jsp?x=&exam='+val, headers:headers}, function(error, httpResponse, body){
-				if(error) throw error;
-				else{
-					$ = cheerio.load(body);
-					var course = [];
-					var grade = [];
-					$("#table-1>tbody").children('tr').each(function(i, item){
-						course.push($(this).children('td').eq(1).html());
-						grade.push($(this).children('td').eq(3).html());
-					});
-					mainScreen.webContents.send('grade', {course:course, grade:grade});
-					gdb.remove({}, {multi:true});
-					gdb.insert({grade:{course:course, grade:grade, date:new Date()}}, function(error, results){
-						if(error) throw error;
-					});
-				}
-			});
 		}
 	});
 }
@@ -670,45 +712,50 @@ function getSubjects(e){
 			}*/
 		}
 		else{
-			console.log(body);
-			var $ = cheerio.load(body);
-			let option = [];
-			$("select[name='exam']").children('option').each(function(i, item){
-				var t = $(this).html();
-				if(t[0] == '2'){
-					option.push(t);
-				}
-			});
-			if(e){
-				option[option.length-1] = e;
+			if(body.includes('Session Timeout')){
+				createWindow();
+				getSubjects(e);
 			}
 			else{
-				mainScreen.webContents.send('switch', {option:option, type:'faculty'});
-			}
-			console.log(option);
-			request({secureProtocol: 'TLSv1_method', strictSSL: false, url:"https://webkiosk.jiit.ac.in/StudentFiles/Academic/StudSubjectFaculty.jsp?x=&exam="+option[option.length-1], headers:headers}, function(error, httpResponse, body){
-				if(error) throw error;
-				else{
-					$ = cheerio.load(body);
-					var subject = [];
-					var lecture = [];
-					var tutorial = [];
-					var practical = [];
-					$("table[align='middle']>tbody").children('tr').each(function(i, item){
-						if(i!=0){
-							subject.push($(this).children('td').eq(1).html());
-							lecture.push($(this).children('td').eq(2).html());
-							tutorial.push($(this).children('td').eq(3).html());
-							practical.push($(this).children('td').eq(4).html());
-						}
-					});
-					mainScreen.webContents.send('faculty', {subject:subject, lecture:lecture, tutorial:tutorial, practical:practical});
-					sdb.remove({}, {multi:true});
-					sdb.insert({faculty:{subject:subject, lecture:lecture, tutorial:tutorial, practical:practical, date:new Date()}}, function(error, results){
-						if(error) throw error;
-					});
+				var $ = cheerio.load(body);
+				let option = [];
+				$("select[name='exam']").children('option').each(function(i, item){
+					var t = $(this).html();
+					if(t[0] == '2'){
+						option.push(t);
+					}
+				});
+				if(e){
+					option[option.length-1] = e;
 				}
-			});
+				else{
+					mainScreen.webContents.send('switch', {option:option, type:'faculty'});
+				}
+				console.log(option);
+				request({secureProtocol: 'TLSv1_method', strictSSL: false, url:"https://webkiosk.jiit.ac.in/StudentFiles/Academic/StudSubjectFaculty.jsp?x=&exam="+option[option.length-1], headers:headers}, function(error, httpResponse, body){
+					if(error) throw error;
+					else{
+						$ = cheerio.load(body);
+						var subject = [];
+						var lecture = [];
+						var tutorial = [];
+						var practical = [];
+						$("table[align='middle']>tbody").children('tr').each(function(i, item){
+							if(i!=0){
+								subject.push($(this).children('td').eq(1).html());
+								lecture.push($(this).children('td').eq(2).html());
+								tutorial.push($(this).children('td').eq(3).html());
+								practical.push($(this).children('td').eq(4).html());
+							}
+						});
+						mainScreen.webContents.send('faculty', {subject:subject, lecture:lecture, tutorial:tutorial, practical:practical});
+						sdb.remove({}, {multi:true});
+						sdb.insert({faculty:{subject:subject, lecture:lecture, tutorial:tutorial, practical:practical, date:new Date()}}, function(error, results){
+							if(error) throw error;
+						});
+					}
+				});
+			}
 		}
 	});
 }
