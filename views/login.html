@@ -52,19 +52,19 @@
 		</div>
 		<div class="row" style="position: fixed;left: 0;bottom: 0;background-color: #E8EBEF;width:100%;z-index:3;cursor: default;">
 			<div class="col-2">
-				<h6 data-toggle="tooltip" data-placement="top" title="Buy me a Coffee!">
+				<h6>
 					<center>NGUdbhav</center>
 				</h6>
 			</div>
 			<div class="col-4 offset-2" onclick="checkUpdates();">
-				<h6 data-toggle="tooltip" data-placement="top" title="Check for updates">
+				<h6 title="Check for updates">
 					<center>
 						<a style="cursor:pointer;" id="updates">Connecting...</a>
 					</center>
 				</h6>
 			</div>
 			<div class="col-1 offset-3">
-				<h6 id="status" data-toggle="tooltip" data-placement="top" title="Current Status">
+				<h6 id="status">
 					<center>Idle</center>
 				</h6>
 			</div>
@@ -88,5 +88,19 @@
 		}
 		/**/
 	});
+	function checkUpdates(){
+		$("#updates").html('Connecting...');
+		ipcRenderer.send('update', 'null');
+	}
+	ipcRenderer.on('updateCheckup', function(e, item){
+		$("#updates").html('Check for updates');
+	});
+	ipcRenderer.on('failure', function(e, item){
+		$("input[name='enroll']").val('');
+		$("input[name='name']").val('');
+		$("input[name='dob']").val('');
+		$("input[name='password']").val('');
+		$("button[type='submit']").html('<i class="fas fa-sign-in-alt"></i>   Sign in');
+	});
 </script>
-</html>'#RYU94UE'
+</html>

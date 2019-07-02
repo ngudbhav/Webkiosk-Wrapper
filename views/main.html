@@ -511,7 +511,7 @@
 
 	function checkUpdates(){
 		$("#updates").html('Connecting...');
-		ipcRenderer.send('update', 'null');
+		ipcRenderer.send('update', 'new');
 	}
 	ipcRenderer.on('updateCheckup', function(e, item){
 		$("#updates").html('Check for updates');
@@ -536,7 +536,7 @@
 		for(let i in item.subjects){
 			tableString+='<tr><td>'+(parseInt(i)+1)+'</td><td>'+item.subjects[i]+'</td><td>'+item.lect_and_tut[i]+'</td><td>'+item.lect[i]+'</td><td>'+item.tut[i]+'</td><td>'+item.prac[i]+'</td></tr>';
 		}
-		tableString.replace(null, 'NA');
+		tableString = tableString.replace(/null/g, 'NA');
 		$("#summary").html(tableString);
 		if(item.date){
 			$("#status").html('Saved');
@@ -616,9 +616,11 @@
 	ipcRenderer.on('marks', function(e, item){
 		var tableString;
 		var headString = '<tr>'+item.thead+'</tr>'
+		headString = headString.replace(/white/g, '');
 		for(let i in item.tr){
 			tableString+='<tr>'+item.tr[i]+'</tr>';
 		}
+		$("#mhead").html(headString);
 		$("#marks").html(tableString);
 	});
 	ipcRenderer.on('name', function(e, item){

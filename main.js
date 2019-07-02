@@ -28,6 +28,13 @@ sdb.loadDatabase();
 var path = require('path');
 
 let loginScreen, mainScreen;
+let image;
+if (process.platform === 'darwin') {
+	image = path.join(__dirname, 'icons', 'mac', 'app.icns');
+}
+else{
+	image = path.join(__dirname, 'icons', 'win', 'app.ico');
+}
 
 var mainScreenMenu = [
 	{
@@ -115,13 +122,23 @@ var mainScreenMenu = [
 			{
 				label: 'Datesheet',
 				click: function(menuItem, BrowserWindow, event){
-
+					dialog.showMessageBox({
+						type: 'info',
+						buttons:['Close'],
+						title: 'No data available!',
+						detail: 'No Datesheet available. Probably there is ample of time for exams.'
+					});
 				}
 			},
 			{
 				label: 'Seating Plan',
 				click: function(menuItem, BrowserWindow, event){
-
+					dialog.showMessageBox({
+						type: 'info',
+						buttons:['Close'],
+						title: 'No data available!',
+						detail: 'No Seating Plan available. Probably there is ample of time for exams.'
+					});
 				}
 			},
 			{
@@ -189,7 +206,7 @@ function checkUpdates(e){
 						appName: "NGUdbhav.webkiosk",
 						title: 'Update Available',
 						message: 'A new version is available. Click to open browser and download.',
-						icon: path.join(__dirname, 'images', 'logo.ico'),
+						icon: path.join(__dirname, 'icons', 'win', 'app.ico'),
 						sound: true,
 						wait:true
 					});
@@ -252,22 +269,20 @@ function createWindow(){
 	Menu.setApplicationMenu(menuBuild);
 }
 function createLoginScreen(){
-	loginScreen = new BrowserWindow({width: 1000, height: 600, webPreferences: {
+	loginScreen = new BrowserWindow({width: 1000, height: 600, icon: image, webPreferences: {
 		nodeIntegration: true
 	}});
 	loginScreen.loadFile(path.join(__dirname, 'views', 'login.html'));
-	//loginScreen.openDevTools();
 	loginScreen.setMenu(null);
 	loginScreen.on('closed', function(){
 		loginScreen = null;
 	});
 }
 function createMainScreen(){
-	mainScreen = new BrowserWindow({width: 1100, height: 600, webPreferences: {
+	mainScreen = new BrowserWindow({width: 1100, height: 600, icon:image, webPreferences: {
 		nodeIntegration: true
 	}});
 	mainScreen.loadFile(path.join(__dirname, 'views', 'main.html'));
-	mainScreen.openDevTools();
 	mainScreen.on('closed', function(){
 		mainScreen = null;
 	});
@@ -809,9 +824,18 @@ function login(data){
 				}
 				else{
 					//Invalid password case here
-					if(httpResponse.rawHeaders[5].split('=')[1]){
-						console.log(httpResponse.rawHeaders[5].split('=')[1]);
+					if(body.includes('Invalid Password')){
 						loginStatus = httpResponse.rawHeaders[5].split('=')[1];
+						dialog.showErrorBox('Authentication Error', 'Webkiosk reports that these credentials are invalid. Please make sure not to try the 3rd time before making sure!');
+						ipcMain.send('failure', 'NA');
+						return;
+					}
+					if(httpResponse.rawHeaders[5].split('=')[1]){
+						loginStatus = httpResponse.rawHeaders[5].split('=')[1];
+						if(httpResponse.rawHeaders[5].split('=')[1].includes('Date')){
+							dialog.showErrorBox('Authentication Error', 'Webkiosk reports that these credentials are invalid. Please make sure not to try the 3rd time before making sure!');
+							ipcMain.send('failure', 'NA');
+						}
 						return ;
 					}
 					else{
@@ -851,7 +875,7 @@ function logout(){
 }
 
 function clear(){
-	logout();
+	//logout();
 	logindb.remove({}, { multi: true });
 	settings.remove({}, { multi: true });
 	attdb.remove({}, { multi: true });
