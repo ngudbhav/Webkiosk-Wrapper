@@ -822,7 +822,14 @@ function login(data){
 				checkLoginStatus(data);
 			}
 			else{
-				throw error;
+				if(error.code === 'ENOTFOUND'){
+					dialog.showErrorBox('Failed to login', 'Webkiosk is inaccessible. Probably, you are not connected to internet. Failed to login.');
+					loginScreen.webContents.send('failure', '');
+				}
+				else{
+					dialog.showErrorBox('Failed to login', 'Webkiosk is Down! Can not login. Please try again later.');
+					loginScreen.webContents.send('failure', '');
+				}
 			}
 		}
 		else{

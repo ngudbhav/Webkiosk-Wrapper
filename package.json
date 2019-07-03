@@ -1,6 +1,6 @@
 {
   "name": "Webskiosk-Wrapper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Webkiosk Wrapper for desktop.",
   "main": "main.js",
   "scripts": {
