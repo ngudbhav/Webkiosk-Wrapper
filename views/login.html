@@ -78,15 +78,8 @@
 	require('popper.js');
 	window.Bootstrap = require('bootstrap');
 	$("button[type='submit']").click(function(){
-		if($("input[name='enroll']").val() && $("input[name='name']").val() && $("input[name='dob']").val() && $("input[name='password']").val()){
-			ipcRenderer.send('login', {enroll:$("input[name='enroll']").val(),name:$("input[name='name']").val(),dob:$("input[name='dob']").val(),password:$("input[name='password']").val()});
-			$(this).html('<i class="fas fa-cog fa-spin"></i>  Logging in...');
-		}
-		else{
-			alert('Please complete all details to proceed.');
-			//Inputs not working bug
-		}
-		/**/
+		ipcRenderer.send('login', {enroll:$("input[name='enroll']").val(),name:$("input[name='name']").val(),dob:$("input[name='dob']").val(),password:$("input[name='password']").val()});
+		$(this).html('<i class="fas fa-cog fa-spin"></i>  Logging in...');
 	});
 	function checkUpdates(){
 		$("#updates").html('Connecting...');

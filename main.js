@@ -85,7 +85,7 @@ var mainScreenMenu = [
 		label: 'Fees',
 		submenu: [
 			{
-				label: ' Full History',
+				label: 'Full History',
 				click: function(menuItem, BrowserWindow, event){
 					mainScreen.webContents.send('windowShift', 'full');
 				}
@@ -225,7 +225,12 @@ function checkUpdates(e){
 					}
 				}
 			}
-			mainScreen.webContents.send('updateCheckup', null);
+			if(mainScreen){
+				mainScreen.webContents.send('updateCheckup', null);
+			}
+			else if(loginScreen){
+				loginScreen.webContents.send('updateCheckup', null);
+			}
 		}
 		else{
 			if(e === 'f'){
@@ -236,7 +241,12 @@ function checkUpdates(e){
 					detail: 'Failed to connect to the update server. Please check your internet connection'
 				});
 			}
-			mainScreen.webContents.send('updateCheckup', null);
+			if(mainScreen){
+				mainScreen.webContents.send('updateCheckup', null);
+			}
+			else if(loginScreen){
+				loginScreen.webContents.send('updateCheckup', null);
+			}
 		}
 	});
 }
@@ -265,8 +275,6 @@ function createWindow(){
 			}
 		}
 	});
-	var menuBuild = Menu.buildFromTemplate(mainScreenMenu);
-	Menu.setApplicationMenu(menuBuild);
 }
 function createLoginScreen(){
 	loginScreen = new BrowserWindow({width: 1000, height: 600, icon: image, webPreferences: {
@@ -274,6 +282,8 @@ function createLoginScreen(){
 	}});
 	loginScreen.loadFile(path.join(__dirname, 'views', 'login.html'));
 	loginScreen.setMenu(null);
+	loginScreen.removeMenu();
+	Menu.setApplicationMenu(Menu.buildFromTemplate([]));
 	loginScreen.on('closed', function(){
 		loginScreen = null;
 	});
@@ -283,6 +293,8 @@ function createMainScreen(){
 		nodeIntegration: true
 	}});
 	mainScreen.loadFile(path.join(__dirname, 'views', 'main.html'));
+	var menuBuild = Menu.buildFromTemplate(mainScreenMenu);
+	Menu.setApplicationMenu(menuBuild);
 	mainScreen.on('closed', function(){
 		mainScreen = null;
 	});
@@ -827,14 +839,14 @@ function login(data){
 					if(body.includes('Invalid Password')){
 						loginStatus = httpResponse.rawHeaders[5].split('=')[1];
 						dialog.showErrorBox('Authentication Error', 'Webkiosk reports that these credentials are invalid. Please make sure not to try the 3rd time before making sure!');
-						ipcMain.send('failure', 'NA');
+						loginScreen.webContents.send('failure', 'NA');
 						return;
 					}
 					if(httpResponse.rawHeaders[5].split('=')[1]){
 						loginStatus = httpResponse.rawHeaders[5].split('=')[1];
 						if(httpResponse.rawHeaders[5].split('=')[1].includes('Date')){
 							dialog.showErrorBox('Authentication Error', 'Webkiosk reports that these credentials are invalid. Please make sure not to try the 3rd time before making sure!');
-							ipcMain.send('failure', 'NA');
+							loginScreen.webContents.send('failure', 'NA');
 						}
 						return ;
 					}
@@ -905,11 +917,17 @@ app.on('activate', function(){
 });
 
 ipcMain.on('login',function(e, item){
-	login(item);
-	settings.remove({}, {multi:true});
-	settings.insert({name: item.name}, function(error, results){
-		if(error) throw error;
-	});
+	if(item.enroll && item.name && item.dob && item.password){
+		login(item);
+		settings.remove({}, {multi:true});
+		settings.insert({name: item.name}, function(error, results){
+			if(error) throw error;
+		});
+	}
+	else{
+		dialog.showErrorBox('Incomplete data', 'Please Fill all details.');
+		loginScreen.webContents.send('failure', '');
+	}
 });
 ipcMain.on('faculty', function(e, item){
 	getSubjects(item);

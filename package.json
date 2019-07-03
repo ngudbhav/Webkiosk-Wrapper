@@ -1,18 +1,18 @@
 {
-  "name": "webskiosk-wrapper",
+  "name": "Webskiosk-Wrapper",
   "version": "1.0.0",
   "description": "A Webkiosk Wrapper for desktop.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=images/logo.icns --prune=true --out=release-builds",
-    "package-win": "electron-packager . TriCO --overwrite --asar=true --platform=win32 --arch=x64 --icon=images/logo.ico --prune=true --out=release-builds --version-string.CompanyName=NGUdbhav --version-string.FileDescription=Application --version-string.ProductName=\"Webskiosk-Wrapper\"",
-    "package-linux": "electron-packager . TriCO --overwrite --asar=true --platform=linux --arch=x64 --icon=images/logo.ico --prune=true --out=release-builds",
-    "install-redhat": "electron-installer-redhat --src release-builds/TriCo-linux-x64/ --dest dist/installers/ --arch x86_64",
-    "install-debian": "electron-installer-debian --src release-builds/TriCo-linux-x64/ --dest dist/installers/ --arch amd64"
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/mac/app.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager . Webskiosk-Wrapper --overwrite --asar=true --platform=win32 --arch=x64 --icon=icons/win/app.ico --prune=true --out=release-builds --version-string.CompanyName=NGUdbhav --version-string.FileDescription=Application --version-string.ProductName=\"Webskiosk-Wrapper\"",
+    "package-linux": "electron-packager . Webskiosk-Wrapper --overwrite --asar=true --platform=linux --arch=x64 --icon=icons/win/app.ico --prune=true --out=release-builds",
+    "install-redhat": "electron-installer-redhat --src release-builds/Webskiosk-Wrapper-linux-x64/ --dest dist/installers/ --arch x86_64",
+    "install-debian": "electron-installer-debian --src release-builds/Webskiosk-Wrapper-linux-x64/ --dest dist/installers/ --arch amd64"
   },
   "build": {
-    "appId": "NGUdbhav.TriCo",
+    "appId": "NGUdbhav.webkiosk",
     "icon": "images/logo.jpg",
     "nsis": {
       "oneClick": false,
@@ -39,8 +39,8 @@
   },
   "devDependencies": {
     "electron": "^5.0.1",
-    "electron-installer-debian": "^1.2.0",
-    "electron-installer-redhat": "^1.1.0",
+    "electron-installer-debian": "^2.0.0",
+    "electron-installer-redhat": "^2.0.0",
     "electron-packager": "^14.0.0"
   }
 }
