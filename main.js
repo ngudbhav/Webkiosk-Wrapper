@@ -310,15 +310,15 @@ function createMainScreen(){
 				});
 				if(results[0].password[0] == '#' || results[0].password[0] == '&'){
 					mainScreen.webContents.send('parentalLoginStatus', {status:1});
-					getAttendance();
-					getInfo();
-					getFullInfo();
-					getOnlineInfo();
-					getPA();
-					getGrades();
-					getMarks();
-					getSubjects();
-					checkUpdates();
+					!mainScreen || getAttendance();
+					!mainScreen || getInfo();
+					!mainScreen || getFullInfo();
+					!mainScreen || getOnlineInfo();
+					!mainScreen || getPA();
+					!mainScreen || getGrades();
+					!mainScreen || getMarks();
+					!mainScreen || getSubjects();
+					!mainScreen || checkUpdates();
 				}
 				else{
 					mainScreen.webContents.send('parentalLoginStatus', {status:0});
