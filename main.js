@@ -341,7 +341,9 @@ function getAttendance(){
 				if(error) throw error;
 				else{
 					if(results[0].attendance){
-						mainScreen.webContents.send('attendanceSummary', results[0].attendance);
+						if(mainScreen){
+							mainScreen.webContents.send('attendanceSummary', results[0].attendance);
+						}
 					}
 				}
 			});
@@ -393,7 +395,9 @@ function getAttendance(){
 						prac.push('NA');
 					}
 				});
-				mainScreen.webContents.send('attendanceSummary', {subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac});
+				if(mainScreen){
+					mainScreen.webContents.send('attendanceSummary', {subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac});
+				}
 				attdb.remove({}, {multi:true});
 				attdb.insert({attendance:{subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac, date:new Date()}}, function(error, results){
 					if(error) throw error;
@@ -410,7 +414,9 @@ function getInfo(){
 				if(error) throw error;
 				else{
 					if(results[0].info){
-						mainScreen.webContents.send('info', results[0].info);
+						if(mainScreen){
+							mainScreen.webContents.send('info', results[0].info);
+						}
 					}
 				}
 			});
@@ -436,7 +442,9 @@ function getInfo(){
 						tr.push($(this).children('td').eq(1).html());
 					}
 				});
-				mainScreen.webContents.send('info', {data:tr});
+				if(mainScreen){
+					mainScreen.webContents.send('info', {data:tr});
+				}
 				pdb.remove({}, {multi:true});
 				pdb.insert({info:{data:tr, date:new Date()}}, function(error, results){
 					if(error) throw error;
@@ -453,7 +461,9 @@ function getFullInfo(){
 				if(error) throw error;
 				else{
 					if(results[0].fullInfo){
-						mainScreen.webContents.send('fullInfo', results[0].fullInfo);
+						if(mainScreen){
+							mainScreen.webContents.send('fullInfo', results[0].fullInfo);
+						}
 					}
 				}
 			});
@@ -485,7 +495,9 @@ function getFullInfo(){
 						dues.push($(this).children('td').eq(5).html());
 					}
 				});
-				mainScreen.webContents.send('fullInfo', {sem:sem, feesAmount:feesAmount, paid:paid, dues:dues});
+				if(mainScreen){
+					mainScreen.webContents.send('fullInfo', {sem:sem, feesAmount:feesAmount, paid:paid, dues:dues});
+				}
 				ffdb.remove({}, {multi:true});
 				ffdb.insert({fullInfo:{sem:sem, feesAmount:feesAmount, paid:paid, dues:dues, date:new Date()}}, function(error, results){
 					if(error) throw error;
@@ -502,7 +514,9 @@ function getOnlineInfo(){
 				if(error) throw error;
 				else{
 					if(results[0].onlineInfo){
-						mainScreen.webContents.send('onlineInfo', results[0].onlineInfo);
+						if(mainScreen){
+							mainScreen.webContents.send('onlineInfo', results[0].onlineInfo);
+						}
 					}
 				}
 			});
@@ -536,7 +550,9 @@ function getOnlineInfo(){
 						status.push($(this).children('td').eq(7).html());
 					}
 				});
-				mainScreen.webContents.send('onlineInfo', {sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status});
+				if(mainScreen){
+					mainScreen.webContents.send('onlineInfo', {sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status});
+				}
 				odb.remove({}, {multi:true});
 				odb.insert({onlineInfo:{sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status, date:new Date()}}, function(error, results){
 					if(error) throw error;
@@ -553,7 +569,9 @@ function getPA(){
 				if(error) throw error;
 				else{
 					if(results[0].pa){
-						mainScreen.webContents.send('pa', results[0].pa);
+						if(mainScreen){
+							mainScreen.webContents.send('pa', results[0].pa);
+						}
 					}
 				}
 			});
@@ -583,7 +601,9 @@ function getPA(){
 					sg.push($(this).children('td').eq(6).html());
 					cg.push($(this).children('td').eq(7).html());
 				});
-				mainScreen.webContents.send('pa', {sem:sem, credit:credit, sg:sg, cg:cg});
+				if(mainScreen){
+					mainScreen.webContents.send('pa', {sem:sem, credit:credit, sg:sg, cg:cg});
+				}
 				padb.remove({}, {multi:true});
 				padb.insert({pa:{sem:sem, credit:credit, sg:sg, cg:cg, date:new Date()}}, function(error, results){
 					if(error) throw error;
@@ -600,7 +620,9 @@ function getMarks(e){
 				if(error) throw error;
 				else{
 					if(results[0].marks){
-						mainScreen.webContents.send('marks', results[0].marks);
+						if(mainScreen){
+							mainScreen.webContents.send('marks', results[0].marks);
+						}
 					}
 				}
 			});
@@ -632,7 +654,9 @@ function getMarks(e){
 							option.push(t);
 						}
 					});
-					mainScreen.webContents.send('switch', {option:option, type:'marks'});
+					if(mainScreen){
+						mainScreen.webContents.send('switch', {option:option, type:'marks'});
+					}
 				}
 				request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventMarksView.jsp?x=&exam='+val, headers:headers}, function(error, httpResponse, body){
 					if(error) throw error;
@@ -643,7 +667,9 @@ function getMarks(e){
 						$("#table-1>tbody").children('tr').each(function(i, item){
 							tr.push($(this).html());
 						});
-						mainScreen.webContents.send('marks', {thead:thead, tr:tr});
+						if(mainScreen){
+							mainScreen.webContents.send('marks', {thead:thead, tr:tr});
+						}
 						mdb.remove({}, {multi:true});
 						mdb.insert({marks:{thead:thead, tr:tr, date:new Date()}}, function(error, results){
 							if(error) throw error;
@@ -662,7 +688,9 @@ function getGrades(e){
 				if(error) throw error;
 				else{
 					if(results[0].grade){
-						mainScreen.webContents.send('grade', results[0].grade);
+						if(mainScreen){
+							mainScreen.webContents.send('grade', results[0].grade);
+						}
 					}
 				}
 			});
@@ -694,7 +722,9 @@ function getGrades(e){
 							option.push(t);
 						}
 					});
-					mainScreen.webContents.send('switch', {option:option, type:'grades'});
+					if(mainScreen){
+						mainScreen.webContents.send('switch', {option:option, type:'grades'});
+					}
 				}
 				request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventGradesView.jsp?x=&exam='+val, headers:headers}, function(error, httpResponse, body){
 					if(error) throw error;
@@ -706,7 +736,9 @@ function getGrades(e){
 							course.push($(this).children('td').eq(1).html());
 							grade.push($(this).children('td').eq(3).html());
 						});
-						mainScreen.webContents.send('grade', {course:course, grade:grade});
+						if(mainScreen){
+							mainScreen.webContents.send('grade', {course:course, grade:grade});
+						}
 						gdb.remove({}, {multi:true});
 						gdb.insert({grade:{course:course, grade:grade, date:new Date()}}, function(error, results){
 							if(error) throw error;
@@ -725,7 +757,9 @@ function getSubjects(e){
 				if(error) throw error;
 				else{
 					if(results[0].faculty){
-						mainScreen.webContents.send('faculty', results[0].faculty);
+						if(mainScreen){
+							mainScreen.webContents.send('faculty', results[0].faculty);
+						}
 					}
 				}
 			});
@@ -756,7 +790,9 @@ function getSubjects(e){
 					option[option.length-1] = e;
 				}
 				else{
-					mainScreen.webContents.send('switch', {option:option, type:'faculty'});
+					if(mainScreen){
+						mainScreen.webContents.send('switch', {option:option, type:'faculty'});
+					}
 				}
 				console.log(option);
 				request({secureProtocol: 'TLSv1_method', strictSSL: false, url:"https://webkiosk.jiit.ac.in/StudentFiles/Academic/StudSubjectFaculty.jsp?x=&exam="+option[option.length-1], headers:headers}, function(error, httpResponse, body){
@@ -775,7 +811,9 @@ function getSubjects(e){
 								practical.push($(this).children('td').eq(4).html());
 							}
 						});
-						mainScreen.webContents.send('faculty', {subject:subject, lecture:lecture, tutorial:tutorial, practical:practical});
+						if(mainScreen){
+							mainScreen.webContents.send('faculty', {subject:subject, lecture:lecture, tutorial:tutorial, practical:practical});
+						}
 						sdb.remove({}, {multi:true});
 						sdb.insert({faculty:{subject:subject, lecture:lecture, tutorial:tutorial, practical:practical, date:new Date()}}, function(error, results){
 							if(error) throw error;
