@@ -8,7 +8,6 @@
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\Webskiosk-Wrapper.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
-!define PRODUCT_STARTMENU_REGVAL "NSIS:StartMenuDir"
 
 SetCompressor lzma
 
@@ -18,7 +17,7 @@ SetCompressor lzma
 ; MUI Settings
 !define MUI_ABORTWARNING
 !define MUI_ICON "icons\win\app.ico"
-!define MUI_UNICON "icons\win\app.ico"
+!define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
@@ -26,14 +25,6 @@ SetCompressor lzma
 !insertmacro MUI_PAGE_LICENSE "release-builds\Webskiosk-Wrapper-win32-x64\license.txt"
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
-; Start menu page
-var ICONS_GROUP
-!define MUI_STARTMENUPAGE_NODISABLE
-!define MUI_STARTMENUPAGE_DEFAULTFOLDER "Webkiosk-Wrapper"
-!define MUI_STARTMENUPAGE_REGISTRY_ROOT "${PRODUCT_UNINST_ROOT_KEY}"
-!define MUI_STARTMENUPAGE_REGISTRY_KEY "${PRODUCT_UNINST_KEY}"
-!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "${PRODUCT_STARTMENU_REGVAL}"
-!insertmacro MUI_PAGE_STARTMENU Application $ICONS_GROUP
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
@@ -407,21 +398,19 @@ Section "MainSection" SEC01
   File "release-builds\Webskiosk-Wrapper-win32-x64\version"
   File "release-builds\Webskiosk-Wrapper-win32-x64\VkICD_mock_icd.dll"
   File "release-builds\Webskiosk-Wrapper-win32-x64\Webskiosk-Wrapper.exe"
+  CreateDirectory "$SMPROGRAMS\Webskiosk-Wrapper"
+  CreateShortCut "$SMPROGRAMS\Webskiosk-Wrapper\Webskiosk-Wrapper.lnk" "$INSTDIR\Webskiosk-Wrapper.exe" "NGUdbhav.webkiosk"
+  WinShell::SetLnkAUMI "$SMPROGRAMS\Webskiosk-Wrapper\Webskiosk-Wrapper.lnk" "NGUdbhav.webkiosk"
+  CreateShortCut "$DESKTOP\Webskiosk-Wrapper.lnk" "$INSTDIR\Webskiosk-Wrapper.exe"
+  WinShell::SetLnkAUMI "$DESKTOP\Webskiosk-Wrapper.lnk" "NGUdbhav.webkiosk"
+SectionEnd
 
-; Shortcuts
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-  CreateDirectory "$SMPROGRAMS\$ICONS_GROUP"
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Webkiosk-Wrapper.lnk" "$INSTDIR\Webskiosk-Wrapper.exe" "NGUdbhav.webkiosk"
-  WinShell::SetLnkAUMI "$SMPROGRAMS\Webkiosk-Wrapper\Webkiosk-Wrapper.lnk" "NGUdbhav.webkiosk"
-  CreateShortCut "$DESKTOP\Webkiosk-Wrapper.lnk" "$INSTDIR\Webskiosk-Wrapper.exe" "NGUdbhav.webkiosk"
-  WinShell::SetLnkAUMI "$DESKTOP\Webkiosk-Wrapper.lnk" "NGUdbhav.webkiosk"
-  !insertmacro MUI_STARTMENU_WRITE_END
+Section Plugin
+  ApplicationID::Set "$SMPROGRAMS\$StartMenuFolder\${PRODUCT_NAME}.lnk" "NGUdbhav.webkiosk"
 SectionEnd
 
 Section -AdditionalIcons
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk" "$INSTDIR\uninst.exe"
-  !insertmacro MUI_STARTMENU_WRITE_END
+  CreateShortCut "$SMPROGRAMS\Webskiosk-Wrapper\Uninstall.lnk" "$INSTDIR\uninst.exe"
 SectionEnd
 
 Section -Post
@@ -447,7 +436,6 @@ Function un.onInit
 FunctionEnd
 
 Section Uninstall
-  !insertmacro MUI_STARTMENU_GETFOLDER "Application" $ICONS_GROUP
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\Webskiosk-Wrapper.exe"
   Delete "$INSTDIR\VkICD_mock_icd.dll"
@@ -712,11 +700,11 @@ Section Uninstall
   Delete "$INSTDIR\chrome_200_percent.pak"
   Delete "$INSTDIR\chrome_100_percent.pak"
 
-  Delete "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk"
+  Delete "$SMPROGRAMS\Webkiosk-Wrapper\Uninstall.lnk"
   Delete "$DESKTOP\Webkiosk-Wrapper.lnk"
-  Delete "$SMPROGRAMS\$ICONS_GROUP\Webkiosk-Wrapper.lnk"
+  Delete "$SMPROGRAMS\Webkiosk-Wrapper\Webkiosk-Wrapper.lnk"
 
-  RMDir "$SMPROGRAMS\$ICONS_GROUP"
+  RMDir "$SMPROGRAMS\Webkiosk-Wrapper"
   RMDir "$INSTDIR\swiftshader"
   RMDir "$INSTDIR\resources\inspector\workspace_diff"
   RMDir "$INSTDIR\resources\inspector\timeline_model"
