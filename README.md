@@ -21,6 +21,25 @@ Portable(32).exe => Unzip and run the exe (32-bit).
 Setup.deb => Installable on Debian distributions (Ubuntu, Kali, etc.)
 Setup.rpm => Installable on Red Hat distributions (Fedora, etc.) 
 ```
+# Installing on debian
+```sh
+//Install the software
+sudo dpkg -i setup.deb
+//Fix dependencies if any
+sudo apt-get install -f
+```
+
+# Installing on fedora
+```sh
+//Install the software
+sudo dnf install setup.rpm
+```
+
+# Running on Mac OS
+```sh
+//Directly run the software
+Double click Webkiosk-Wrapper.app inside the extracted directory
+```
 
 # Starting The App
 ```sh
