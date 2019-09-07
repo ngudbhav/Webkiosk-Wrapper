@@ -179,6 +179,7 @@ function checkUpdates(e){
 			var v = app.getVersion().replace(' ', '');
 			if(JSON.parse(body).tag_name){
 				var latestV = JSON.parse(body).tag_name.replace('v', '');
+				var changeLog = JSON.parse(body).body;
 				//If version mismatch
 				if(latestV!=v){
 					//Present the dialog
@@ -254,6 +255,7 @@ function createWindow(){
 	logindb.find({}, function(error, results){
 		if(error){
 			console.log(error);
+			//Clear the previous saved credentials and delete saved user data
 			logindb.remove({}, { multi: true });
 			createLoginScreen();
 			//clear db and load the login screen
@@ -262,9 +264,11 @@ function createWindow(){
 			if(results.length){
 				results[0].saved = true;
 				//fallback = true;
+				//Proceed to login with the saved credentials
 				login(results[0]);
 			}
 			else{
+				//Clear the previous saved credentials and delete saved user data
 				logindb.remove({}, { multi: true });
 				createLoginScreen();
 			}
@@ -272,11 +276,13 @@ function createWindow(){
 	});
 }
 function createLoginScreen(){
+	//Create login screen
 	loginScreen = new BrowserWindow({width: 1000, height: 600, icon: image, webPreferences: {
 		nodeIntegration: true
 	}});
 	loginScreen.loadFile(path.join(__dirname, 'views', 'login.html'));
 	loginScreen.setMenu(null);
+	//No need of menu
 	loginScreen.removeMenu();
 	Menu.setApplicationMenu(Menu.buildFromTemplate([]));
 	loginScreen.on('closed', function(){
@@ -284,6 +290,7 @@ function createLoginScreen(){
 	});
 }
 function createMainScreen(){
+	//Create after login screen
 	mainScreen = new BrowserWindow({width: 1100, height: 600, icon:image, webPreferences: {
 		nodeIntegration: true
 	}});
@@ -294,31 +301,34 @@ function createMainScreen(){
 		mainScreen = null;
 	});
 	mainScreen.webContents.on('did-finish-load', () => {
+		//Retrieve user data and send the name to the title bar
 		logindb.find({}, function(error, results){
 			if(error) throw error;
 			else{
 				settings.find({}, function(error, name){
 					if(error) throw error;
 					else{
-						mainScreen.webContents.send('name', {name:name[0].name, fallback:fallback});
+						mainScreen.webContents.send('name', {name:name[0].name});
 					}
 				});
 				if(results[0].password[0] == '#' || results[0].password[0] == '&'){
+					//Check for password reset. Very trivial Confirmation. Need confirmation
 					mainScreen.webContents.send('parentalLoginStatus', {status:1});
-					!mainScreen || getAttendance();
-					!mainScreen || getInfo();
-					!mainScreen || getFullInfo();
-					!mainScreen || getOnlineInfo();
-					!mainScreen || getPA();
-					!mainScreen || getGrades();
-					!mainScreen || getMarks();
-					!mainScreen || getSubjects();
-					!mainScreen || checkUpdates();
-					!mainScreen || getPlan();
 				}
 				else{
 					mainScreen.webContents.send('parentalLoginStatus', {status:0});
 				}
+				//Call all the APIs to retrieve full webkiosk data of the user
+				!mainScreen || getAttendance();
+				!mainScreen || getInfo();
+				!mainScreen || getFullInfo();
+				!mainScreen || getOnlineInfo();
+				!mainScreen || getPA();
+				!mainScreen || getGrades();
+				!mainScreen || getMarks();
+				!mainScreen || getSubjects();
+				!mainScreen || checkUpdates();
+				!mainScreen || getPlan();
 			}
 		});
 	});
@@ -327,12 +337,17 @@ var headers = {
 	'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.110 Safari/537.36',
 	'Content-Type' : 'application/x-www-form-urlencoded'
 }
+//This headers will be used to authenticate every request with webkiosk.
+//After login, The cookie is inserted into the headers and every request is made with new headers.
 var fallback= false;
 var loginStatus = 0;
 /*APIS for actions in the menu bar*/
 function getAttendance(){
+	//Request for attendance
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url:"https://webkiosk.jiit.ac.in/StudentFiles/Academic/StudentAttendanceList.jsp", headers:headers}, function(error, httpResponse, body){
 		if(error){
+			//Network connection failure
+			//Load the previously saved data from the system
 			attdb.find({}, function(error, results){
 				if(error) throw error;
 				else{
@@ -346,18 +361,17 @@ function getAttendance(){
 			//ECONNREFUSED
 			//getaddrinfo
 			console.log(error);
-			/*if('session timeout'){
-				//relogin(getattendance);
-				login();
-				getAttendance();
-			}*/
 		}
 		else{
 			if(body.includes('Session Timeout')){
+				//If session times out
 				createWindow();
+				//Login again with the already saved credentials in background
 				getAttendance();
+				//again try to retrieve the data
 			}
 			else{
+				//Scrapping the attendance from the webpage
 				var $ = cheerio.load(body);
 				var subjects = [];
 				var lect_and_tut = [];
@@ -392,8 +406,10 @@ function getAttendance(){
 					}
 				});
 				if(mainScreen){
+					//Send the results to the render
 					mainScreen.webContents.send('attendanceSummary', {subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac});
 				}
+				//Remove the previous attendance data and save the new attendance record
 				attdb.remove({}, {multi:true});
 				attdb.insert({attendance:{subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac, date:new Date()}}, function(error, results){
 					if(error) throw error;
@@ -404,19 +420,27 @@ function getAttendance(){
 }
 
 function getPlan(e){
+	//Request for Seating plan
 	request({ secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudViewSeatPlan.jsp', headers: headers}, function(error, httpResponse, body){
 		if(error){
+			//Network connection failure
+			//Seating plan should not be cached
 			console.log(error);
 		}
 		else{
 			if (body.includes('Session Timeout')) {
+				//If session times out
 				createWindow();
+				//Login again with the already saved credentials in background
 				getPlan();
+				//again try to retrieve the data
 			}
 			else {
+				//checking for availability
 				var $ = cheerio.load(body);
 				var checkIfAvailable = $("#DScode>option");
 				if(checkIfAvailable){
+					//if available then start scrapping
 					var op = checkIfAvailable.val();
 					request({ secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudViewSeatPlan.jsp?x=&DScode='+op, headers: headers }, function(error, httpResponse, body){
 						if(error) throw body;
@@ -450,8 +474,11 @@ function getPlan(e){
 }
 
 function getInfo(){
+	//Request for Personal Information
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in/StudentFiles/PersonalFiles/StudPersonalInfo.jsp', headers:headers}, function(error, httpResponse, body){
 		if(error){
+			//Network connection failure
+			//Load the previously saved data from the system
 			pdb.find({}, function(error, results){
 				if(error) throw error;
 				else{
@@ -465,18 +492,17 @@ function getInfo(){
 			//ECONNREFUSED
 			//getaddrinfo
 			console.log(error);
-			/*if('session timeout'){
-				//relogin(getattendance);
-				login();
-				getAttendance();
-			}*/
 		}
 		else{
 			if(body.includes('Session Timeout')){
+				//If session times out
 				createWindow();
+				//Login again with the already saved credentials in background
 				getInfo();
+				//again try to retrieve the data
 			}
 			else{
+				//Scrapping the Personal data from the webpage
 				var $ = cheerio.load(body);
 				var tr = [];
 				$("table[cellpadding='2']>tbody").children('tr').each(function(i, item){
@@ -485,8 +511,10 @@ function getInfo(){
 					}
 				});
 				if(mainScreen){
+					//Send the results to the render
 					mainScreen.webContents.send('info', {data:tr});
 				}
+				//Remove the previous data and save the new record
 				pdb.remove({}, {multi:true});
 				pdb.insert({info:{data:tr, date:new Date()}}, function(error, results){
 					if(error) throw error;
@@ -497,8 +525,11 @@ function getInfo(){
 }
 
 function getFullInfo(){
+	//Request for full fees paid information
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/FAS/StudRegFee.jsp', headers:headers}, function(error, httpResponse, body){
 		if(error){
+			//Network connection failure
+			//Load the previously saved data from the system
 			ffdb.find({}, function(error, results){
 				if(error) throw error;
 				else{
@@ -512,18 +543,17 @@ function getFullInfo(){
 			//ECONNREFUSED
 			//getaddrinfo
 			console.log(error);
-			/*if('session timeout'){
-				//relogin(getattendance);
-				login();
-				getAttendance();
-			}*/
 		}
 		else{
 			if(body.includes('Session Timeout')){
+				//If session times out
 				createWindow();
+				//Login again with the already saved credentials in background
 				getFullInfo();
+				//again try to retrieve the data
 			}
 			else{
+				//Scrapping
 				var $ = cheerio.load(body);
 				var sem = [];
 				var feesAmount = [];
@@ -538,8 +568,10 @@ function getFullInfo(){
 					}
 				});
 				if(mainScreen){
+					//Send the results to the render
 					mainScreen.webContents.send('fullInfo', {sem:sem, feesAmount:feesAmount, paid:paid, dues:dues});
 				}
+				//Remove the previous data and save the new record
 				ffdb.remove({}, {multi:true});
 				ffdb.insert({fullInfo:{sem:sem, feesAmount:feesAmount, paid:paid, dues:dues, date:new Date()}}, function(error, results){
 					if(error) throw error;
@@ -550,8 +582,11 @@ function getFullInfo(){
 }
 
 function getOnlineInfo(){
+	//Request to get the online fees paid history
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/pgfiles/OnlinePaymentHistory.jsp', headers:headers}, function(error, httpResponse, body){
 		if(error){
+			//Network connection failure
+			//Load the previously saved data from the system
 			odb.find({}, function(error, results){
 				if(error) throw error;
 				else{
@@ -565,18 +600,17 @@ function getOnlineInfo(){
 			//ECONNREFUSED
 			//getaddrinfo
 			console.log(error);
-			/*if('session timeout'){
-				//relogin(getattendance);
-				login();
-				getAttendance();
-			}*/
 		}
 		else{
 			if(body.includes('Session Timeout')){
+				//If session times out
 				createWindow();
+				//Login again with the already saved credentials in background
 				getOnlineInfo();
+				//again try to retrieve the data
 			}
 			else{
+				//Scrapping
 				var $ = cheerio.load(body);
 				var sem = [];
 				var feesAmount = [];
@@ -593,8 +627,10 @@ function getOnlineInfo(){
 					}
 				});
 				if(mainScreen){
+					//Send the results to the render
 					mainScreen.webContents.send('onlineInfo', {sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status});
 				}
+				//Remove the previous data and save the new record
 				odb.remove({}, {multi:true});
 				odb.insert({onlineInfo:{sem:sem, feesAmount:feesAmount, paid:paid, trxn:trxn, status:status, date:new Date()}}, function(error, results){
 					if(error) throw error;
@@ -605,8 +641,11 @@ function getOnlineInfo(){
 }
 
 function getPA(){
+	//Request to get the CGPA and SGPA record of every semester
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudCGPAReport.jsp', headers:headers}, function(error, httpResponse, body){
 		if(error){
+			//Network connection failure
+			//Load the previously saved data from the system
 			padb.find({}, function(error, results){
 				if(error) throw error;
 				else{
@@ -620,16 +659,14 @@ function getPA(){
 			//ECONNREFUSED
 			//getaddrinfo
 			console.log(error);
-			/*if('session timeout'){
-				//relogin(getattendance);
-				login();
-				getAttendance();
-			}*/
 		}
 		else{
 			if(body.includes('Session Timeout')){
+				//If session times out
 				createWindow();
+				//Login again with the already saved credentials in background
 				getPA();
+				//again try to retrieve the data
 			}
 			else{
 				var $ = cheerio.load(body);
@@ -644,8 +681,10 @@ function getPA(){
 					cg.push($(this).children('td').eq(7).html());
 				});
 				if(mainScreen){
+					//Send the results to the render
 					mainScreen.webContents.send('pa', {sem:sem, credit:credit, sg:sg, cg:cg});
 				}
+				//Remove the previous data and save the new record
 				padb.remove({}, {multi:true});
 				padb.insert({pa:{sem:sem, credit:credit, sg:sg, cg:cg, date:new Date()}}, function(error, results){
 					if(error) throw error;
@@ -656,8 +695,11 @@ function getPA(){
 }
 
 function getMarks(e){
+	//Get the marks of the current semester. If unavailable, will render the record of the last semester
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventMarksView.jsp', headers:headers}, function(error, httpResponse, body){
 		if(error){
+			//Network connection failure
+			//Load the previously saved data from the system
 			mdb.find({}, function(error, results){
 				if(error) throw error;
 				else{
@@ -671,24 +713,25 @@ function getMarks(e){
 			//ECONNREFUSED
 			//getaddrinfo
 			console.log(error);
-			/*if('session timeout'){
-				//relogin(getattendance);
-				login();
-				getAttendance();
-			}*/
 		}
 		else{
 			if(body.includes('Session Timeout')){
+				//If session times out
 				createWindow();
+				//Login again with the already saved credentials in background
 				getMarks(e);
+				//again try to retrieve the data
 			}
 			else{
+				//Get the latest records available on webkiosk
 				var $ = cheerio.load(body);
 				let val = $("select[name='exam']").children('option').eq(1).attr('value');
 				if(e){
+					//If user called marks for particular semester
 					val= e;
 				}
 				else{
+					//If no action from user
 					let option = [];
 					$("select[name='exam']").children('option').each(function(i, item){
 						var t = $(this).html();
@@ -700,9 +743,11 @@ function getMarks(e){
 						mainScreen.webContents.send('switch', {option:option, type:'marks'});
 					}
 				}
+				//Request for marks of particular semester in the 'val' variable.
 				request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventMarksView.jsp?x=&exam='+val, headers:headers}, function(error, httpResponse, body){
 					if(error) throw error;
 					else{
+						//Scrapping
 						$ = cheerio.load(body);
 						var thead = $("#table-1>thead").children('tr').html();
 						var tr = [];
@@ -710,8 +755,10 @@ function getMarks(e){
 							tr.push($(this).html());
 						});
 						if(mainScreen){
+							//Send the results to the render
 							mainScreen.webContents.send('marks', {thead:thead, tr:tr});
 						}
+						//Remove previous data and save the new data.
 						mdb.remove({}, {multi:true});
 						mdb.insert({marks:{thead:thead, tr:tr, date:new Date()}}, function(error, results){
 							if(error) throw error;
@@ -724,8 +771,11 @@ function getMarks(e){
 }
 
 function getGrades(e){
+	//Get the grades of the current semester. If unavailable, will render the record of the last semester
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventGradesView.jsp', headers:headers}, function(error, httpResponse, body){
 		if(error){
+			//Network connection failure
+			//Load the previously saved data from the system
 			gdb.find({}, function(error, results){
 				if(error) throw error;
 				else{
@@ -739,24 +789,25 @@ function getGrades(e){
 			//ECONNREFUSED
 			//getaddrinfo
 			console.log(error);
-			/*if('session timeout'){
-				//relogin(getattendance);
-				login();
-				getAttendance();
-			}*/
 		}
 		else{
 			if(body.includes('Session Timeout')){
+				//If session times out
 				createWindow();
+				//Login again with the already saved credentials in background
 				getGrades(e);
+				//again try to retrieve the data
 			}
 			else{
+				//Get the latest records available on webkiosk
 				var $ = cheerio.load(body);
 				let val = $("select[name='exam']").children('option').eq(1).attr('value');
 				if(e){
+					//If user called grades for particular semester
 					val = e;
 				}
 				else{
+					//If no action from user
 					let option = [];
 					$("select[name='exam']").children('option').each(function(i, item){
 						var t = $(this).html();
@@ -768,9 +819,11 @@ function getGrades(e){
 						mainScreen.webContents.send('switch', {option:option, type:'grades'});
 					}
 				}
+				//Request for grades of particular semester in the 'val' variable.
 				request({secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudentEventGradesView.jsp?x=&exam='+val, headers:headers}, function(error, httpResponse, body){
 					if(error) throw error;
 					else{
+						//Scrapping
 						$ = cheerio.load(body);
 						var course = [];
 						var grade = [];
@@ -779,8 +832,10 @@ function getGrades(e){
 							grade.push($(this).children('td').eq(3).html());
 						});
 						if(mainScreen){
+							//Send the results to the render
 							mainScreen.webContents.send('grade', {course:course, grade:grade});
 						}
+						//Remove previous data and save the new data
 						gdb.remove({}, {multi:true});
 						gdb.insert({grade:{course:course, grade:grade, date:new Date()}}, function(error, results){
 							if(error) throw error;
@@ -793,8 +848,11 @@ function getGrades(e){
 }
 
 function getSubjects(e){
+	//Get the subjects of the current semester. If unavailable, will render the record of the last semester
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url:"https://webkiosk.jiit.ac.in/StudentFiles/Academic/StudSubjectFaculty.jsp", headers:headers}, function(error, httpResponse, body){
 		if(error){
+			//Network connection failure
+			//Load the previously saved data from the system
 			sdb.find({}, function(error, results){
 				if(error) throw error;
 				else{
@@ -808,18 +866,17 @@ function getSubjects(e){
 			//ECONNREFUSED
 			//getaddrinfo
 			console.log(error);
-			/*if('session timeout'){
-				//relogin(getattendance);
-				login();
-				getAttendance();
-			}*/
 		}
 		else{
 			if(body.includes('Session Timeout')){
+				//If session times out
 				createWindow();
+				//Login again with the already saved credentials in background
 				getSubjects(e);
+				//again try to retrieve the data
 			}
 			else{
+				//Get the latest records available on webkiosk
 				var $ = cheerio.load(body);
 				let option = [];
 				$("select[name='exam']").children('option').each(function(i, item){
@@ -829,6 +886,7 @@ function getSubjects(e){
 					}
 				});
 				if(e){
+					//If user called subjects for particular semester
 					option[option.length-1] = e;
 				}
 				else{
@@ -836,10 +894,11 @@ function getSubjects(e){
 						mainScreen.webContents.send('switch', {option:option, type:'faculty'});
 					}
 				}
-				console.log(option);
+				//Request for subjects of particular semester in the 'option'.
 				request({secureProtocol: 'TLSv1_method', strictSSL: false, url:"https://webkiosk.jiit.ac.in/StudentFiles/Academic/StudSubjectFaculty.jsp?x=&exam="+option[option.length-1], headers:headers}, function(error, httpResponse, body){
 					if(error) throw error;
 					else{
+						//Scrapping
 						$ = cheerio.load(body);
 						var subject = [];
 						var lecture = [];
@@ -854,8 +913,10 @@ function getSubjects(e){
 							}
 						});
 						if(mainScreen){
+							//Send the results to the render
 							mainScreen.webContents.send('faculty', {subject:subject, lecture:lecture, tutorial:tutorial, practical:practical});
 						}
+						//Remove previous data and save the new data
 						sdb.remove({}, {multi:true});
 						sdb.insert({faculty:{subject:subject, lecture:lecture, tutorial:tutorial, practical:practical, date:new Date()}}, function(error, results){
 							if(error) throw error;
@@ -870,6 +931,7 @@ function getSubjects(e){
 
 function checkLoginStatus(item){
 	if(loginStatus === 1){
+		//If the credentails are correct, then save the login data into the webkiosk.
 		logindb.insert({enroll: item.enroll, dob:item.dob, password:item.password}, function(error, results){
 			if(error){
 				throw new Error('There seems to be a problem in reading your login data. Please login again.');
@@ -888,14 +950,14 @@ function checkLoginStatus(item){
 		});
 		//Login success
 	}
-	else{
-		
-	}
 }
 
 function login(data){
+	//Get the cookie from the webkiosk and save the cookie to authenticate future requests.
 	request({secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in', headers: headers}, function(error, response, body){
 		if(error){
+			//Network connection failure
+			//Virtual login with the previous data.
 			if(data.saved){
 				loginStatus = 1;
 				fallback = true;
@@ -917,6 +979,8 @@ function login(data){
 			var $ = cheerio.load(body);
 			var captcha = $('font[face="casteller"]').html();
 			headers.Cookie = cookie;
+			//Cookies overwritten
+			//Submit the login form with the data from the user.
 			request.post({secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in/CommonFiles/UseValid.jsp', form: {txtInst:"Institute", InstCode:"JIIT", txtuType:"Member Type", UserType101117:"S", txtCode:"Enrollment No", MemberCode:data.enroll, DOB:"DOB", DATE1:data.dob, txtPin:"Password/Pin", Password101117:data.password, BTNSubmit:"Submit", txtCode:"Enter Captcha     ", txtcap:captcha}, headers: headers}, function(error,httpResponse,body){
 				if(error){
 					console.log(error);
@@ -938,13 +1002,14 @@ function login(data){
 						return ;
 					}
 					else{
+						//Furthur redirect from webkiosk
 						request({secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in/StudentFiles/StudentPage.jsp', headers:headers}, function(error, response, body){
 							if(error){
 								console.log(error);
 							}
 							else{
 								if(body.includes('FrameLeftStudent')){
-									//Success Login
+									//Success Login reported
 									loginStatus = 1;
 									checkLoginStatus(data);
 								}
@@ -956,7 +1021,6 @@ function login(data){
 							}
 						});
 					}
-					/*https://webkiosk.jiit.ac.in/StudentFiles/StudentPage.jsp*/
 				}
 			});
 		}
@@ -974,7 +1038,7 @@ function logout(){
 }
 
 function clear(){
-	//logout();
+	//Clear the full data
 	logindb.remove({}, { multi: true });
 	settings.remove({}, { multi: true });
 	attdb.remove({}, { multi: true });
