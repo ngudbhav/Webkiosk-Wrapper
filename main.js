@@ -1,7 +1,6 @@
 const {app, BrowserWindow, ipcMain, dialog, shell, Menu} = require('electron');
 const request = require('request');
 const cheerio = require('cheerio');
-const cryptr = require('cryptr');
 const notifier = require('node-notifier');
 /*Load Datastores*/
 var Datastore = require('nedb')
@@ -26,6 +25,8 @@ mdb.loadDatabase();
 gdb.loadDatabase();
 sdb.loadDatabase();
 var path = require('path');
+//Variable to confirm the availability to seating plan
+var planAvailable=0;
 
 let loginScreen, mainScreen;
 let image;
@@ -35,7 +36,7 @@ if (process.platform === 'darwin') {
 else{
 	image = path.join(__dirname, 'icons', 'win', 'app.ico');
 }
-
+//Creating the menu bar
 var mainScreenMenu = [
 	{
 		label: 'Account',
@@ -52,12 +53,6 @@ var mainScreenMenu = [
 					mainScreen.webContents.send('windowShift', 'info');
 				}
 			},
-			/*{
-				label: 'Change Password',
-				click: function(menuItem, BrowserWindow, event){
-					
-				}
-			},*/
 			{
 				label: 'Logout and remove data',
 				click: function(menuItem, BrowserWindow, event){
@@ -120,25 +115,21 @@ var mainScreenMenu = [
 		label: 'Exam Info',
 		submenu:[
 			{
-				label: 'Datesheet',
-				click: function(menuItem, BrowserWindow, event){
-					dialog.showMessageBox({
-						type: 'info',
-						buttons:['Close'],
-						title: 'No data available!',
-						detail: 'No Datesheet available. Probably there is ample of time for exams.'
-					});
-				}
-			},
-			{
 				label: 'Seating Plan',
 				click: function(menuItem, BrowserWindow, event){
-					dialog.showMessageBox({
-						type: 'info',
-						buttons:['Close'],
-						title: 'No data available!',
-						detail: 'No Seating Plan available. Probably there is ample of time for exams.'
-					});
+					//Check if seating plan is actually available or not
+					if (planAvailable === 0){
+						dialog.showMessageBox({
+							type: 'info',
+							buttons: ['Close'],
+							title: 'No data available!',
+							detail: 'No Datesheet available. Probably there is ample of time for exams.'
+						});
+					}
+					else{
+						//If available then proceed to render
+						mainScreen.webContents.send('windowShift', 'seat');
+					}
 				}
 			},
 			{
@@ -182,13 +173,15 @@ var mainScreenMenu = [
 
 /*Update checkup start*/
 function checkUpdates(e){
+	//Check for the latest release with github release page
 	request('https://api.github.com/repos/ngudbhav/Webkiosk-Wrapper/releases/latest', {headers: {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 '}}, function(error, html, body){
 		if(!error){
 			var v = app.getVersion().replace(' ', '');
 			if(JSON.parse(body).tag_name){
 				var latestV = JSON.parse(body).tag_name.replace('v', '');
-				var changeLog = JSON.parse(body).body.replace('<strong>Changelog</strong>', 'Update available. Here are the changes:\n');
+				//If version mismatch
 				if(latestV!=v){
+					//Present the dialog
 					dialog.showMessageBox(
 						{
 							type: 'info',
@@ -201,6 +194,7 @@ function checkUpdates(e){
 							}
 						}
 					);
+					//Present the notification
 					notifier.notify(
 					{
 						appName: "NGUdbhav.webkiosk",
@@ -215,6 +209,7 @@ function checkUpdates(e){
 					});
 				}
 				else{
+					//If clicked on check for updates
 					if(e === 'f'){
 						dialog.showMessageBox({
 							type: 'info',
@@ -319,6 +314,7 @@ function createMainScreen(){
 					!mainScreen || getMarks();
 					!mainScreen || getSubjects();
 					!mainScreen || checkUpdates();
+					!mainScreen || getPlan();
 				}
 				else{
 					mainScreen.webContents.send('parentalLoginStatus', {status:0});
@@ -402,6 +398,52 @@ function getAttendance(){
 				attdb.insert({attendance:{subjects:subjects, lect_and_tut:lect_and_tut, lect:lect, tut:tut, prac:prac, date:new Date()}}, function(error, results){
 					if(error) throw error;
 				});
+			}
+		}
+	});
+}
+
+function getPlan(e){
+	request({ secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudViewSeatPlan.jsp', headers: headers}, function(error, httpResponse, body){
+		if(error){
+			console.log(error);
+		}
+		else{
+			if (body.includes('Session Timeout')) {
+				createWindow();
+				getPlan();
+			}
+			else {
+				var $ = cheerio.load(body);
+				var checkIfAvailable = $("#DScode>option");
+				if(checkIfAvailable){
+					var op = checkIfAvailable.val();
+					request({ secureProtocol: 'TLSv1_method', strictSSL: false, url: 'https://webkiosk.jiit.ac.in/StudentFiles/Exam/StudViewSeatPlan.jsp?x=&DScode='+op, headers: headers }, function(error, httpResponse, body){
+						if(error) throw body;
+						else{
+							var $ = cheerio.load(body);
+							var subjects = [];
+							var dateTime = [];
+							var room = [];
+							var seat = [];
+							$("#table-1").children('tbody').children('tr').each(function(i, item){
+								subjects.push($(this).children('td').eq(1).html());
+								dateTime.push($(this).children('td').eq(2).children('font').html());
+								room.push($(this).children('td').eq(3).html());
+								seat.push($(this).children('td').eq(4).html());
+							});
+							if(subjects.length!==0){
+								planAvailable = 1;
+								if (mainScreen) {
+									mainScreen.webContents.send('seating', { subjects: subjects, dateTime: dateTime, room: room, seat: seat });
+								}
+							}
+							else{
+								planAvailable = 0;
+							}
+						}
+					});
+				}
 			}
 		}
 	});

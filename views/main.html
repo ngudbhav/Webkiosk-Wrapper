@@ -323,6 +323,55 @@
 				</div>
 			</div>
 		</div>
+		<div class="screen" id="getSeat">
+			<div class="card card-cascade narrower">
+				<div
+					class="view view-cascade gradient-card-header blue-gradient narrower py-2 mx-4 mb-3 d-flex justify-content-between align-items-center">
+					<div></div>
+					<h3>
+						<a class="white-text mx-3">Seating Plan</a>
+					</h3>
+					<div></div>
+				</div>
+				<div class="px-4">
+					<div class="table-wrapper">
+						<table class="table table-hover mb-0">
+							<thead>
+								<tr>
+									<th>
+										<a>
+											Subjects
+										</a>
+									</th>
+									<th>
+										<a>
+											Date/Time
+										</a>
+									</th>
+									<th>
+										<a>
+											Venue
+										</a>
+									</th>
+									<th>
+										<a>
+											Seat No.
+										</a>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="seat">
+								<tr>
+									<td>
+										Loading...
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div class="screen" id="getFaculty">
 			<div class="row">
 				<div class="col-12">
@@ -489,7 +538,7 @@
 			<div class="col-4 offset-2" onclick="checkUpdates();">
 				<h6 title="Check for updates">
 					<center>
-						<a style="cursor:pointer;" id="updates">Connecting...</a>
+						<a style="cursor:pointer;" id="updates">Check for updates</a>
 					</center>
 				</h6>
 			</div>
@@ -629,6 +678,13 @@
 			//Fallback to login
 		}
 	});
+	ipcRenderer.on('seating', function(e, item){
+		let tableString = '';
+		for(let i in item.subjects){
+			tableString += '<tr><td>'+item.subjects[i]+'</td><td>'+item.dateTime[i]+'</td><td>'+item.room[i]+'</td><td>'+item.seat[i]+'</td></tr>';
+		}
+		$("#seat").html(tableString);
+	});
 	ipcRenderer.on('windowShift', function(e, item){
 		$(".screen").animate({
 			height: 'hide'
@@ -681,6 +737,11 @@
 				break;
 			case 'faculty':
 				$("#getFaculty").animate({
+					height: 'show'
+				});
+				break;
+			case 'seat':
+				$("#getSeat").animate({
 					height: 'show'
 				});
 				break;
