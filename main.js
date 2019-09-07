@@ -4,16 +4,16 @@ const cheerio = require('cheerio');
 const notifier = require('node-notifier');
 /*Load Datastores*/
 var Datastore = require('nedb')
-, settings = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/settings.db'})
-, logindb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/login.db'})
-, attdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/att.db'})
-, pdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/p.db'})
-, ffdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/ff.db'})
-, odb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/o.db'})
-, padb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/pa.db'})
-, mdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/m.db'})
-, gdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/g.db'})
-, sdb = new Datastore({ filename: app.getPath('appData')+'/webkiosk/data/settings/s.db'});
+, settings = new Datastore({ filename: app.getPath('appData')+'/wrapper/data/settings/settings.db'})
+, logindb = new Datastore({ filename: app.getPath('appData')+'/wrapper/data/settings/login.db'})
+, attdb = new Datastore({ filename: app.getPath('appData')+'/wrapper/data/settings/att.db'})
+, pdb = new Datastore({ filename: app.getPath('appData')+'/wrapper/data/settings/p.db'})
+, ffdb = new Datastore({ filename: app.getPath('appData')+'/wrapper/data/settings/ff.db'})
+, odb = new Datastore({ filename: app.getPath('appData')+'/wrapper/data/settings/o.db'})
+, padb = new Datastore({ filename: app.getPath('appData')+'/wrapper/data/settings/pa.db'})
+, mdb = new Datastore({ filename: app.getPath('appData')+'/wrapper/data/settings/m.db'})
+, gdb = new Datastore({ filename: app.getPath('appData')+'/wrapper/data/settings/g.db'})
+, sdb = new Datastore({ filename: app.getPath('appData')+'/wrapper/data/settings/s.db'});
 settings.loadDatabase();
 logindb.loadDatabase();
 attdb.loadDatabase();

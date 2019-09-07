@@ -1,15 +1,15 @@
 {
-  "name": "Webskiosk-Wrapper",
+  "name": "Webkiosk-Wrapper",
   "version": "1.1.3",
   "description": "A Webkiosk Wrapper for desktop.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=icons/mac/app.icns --prune=true --out=release-builds",
-    "package-win": "electron-packager . Webskiosk-Wrapper --overwrite --asar=true --platform=win32 --arch=x64 --icon=icons/win/app.ico --prune=true --out=release-builds --version-string.CompanyName=NGUdbhav --version-string.FileDescription=Application --version-string.ProductName=\"Webskiosk-Wrapper\"",
-    "package-linux": "electron-packager . Webskiosk-Wrapper --overwrite --asar=true --platform=linux --arch=x64 --icon=icons/win/app.ico --prune=true --out=release-builds",
-    "install-redhat": "electron-installer-redhat --src release-builds/Webskiosk-Wrapper-linux-x64/ --dest release-builds/ --arch x86_64",
-    "install-debian": "electron-installer-debian --src release-builds/Webskiosk-Wrapper-linux-x64/ --dest release-builds/ --arch amd64"
+    "package-win": "electron-packager . Webkiosk-Wrapper --overwrite --asar=true --platform=win32 --arch=x64 --icon=icons/win/app.ico --prune=true --out=release-builds --version-string.CompanyName=NGUdbhav --version-string.FileDescription=Application --version-string.ProductName=\"Webkiosk-Wrapper\"",
+    "package-linux": "electron-packager . Webkiosk-Wrapper --overwrite --asar=true --platform=linux --arch=x64 --icon=icons/win/app.ico --prune=true --out=release-builds",
+    "install-redhat": "electron-installer-redhat --src release-builds/Webkiosk-Wrapper-linux-x64/ --dest release-builds/ --arch x86_64",
+    "install-debian": "electron-installer-debian --src release-builds/Webkiosk-Wrapper-linux-x64/ --dest release-builds/ --arch amd64"
   },
   "build": {
     "appId": "NGUdbhav.webkiosk",
