@@ -281,7 +281,7 @@ function createLoginScreen(){
 		nodeIntegration: true
 	}});
 	loginScreen.loadFile(path.join(__dirname, 'views', 'login.html'));
-	//loginScreen.openDevTools();
+	loginScreen.openDevTools();
 	loginScreen.setMenu(null);
 	//No need of menu
 	loginScreen.removeMenu();
