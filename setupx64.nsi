@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Webkiosk-Wrapper"
-!define PRODUCT_VERSION "1.1.2"
+!define PRODUCT_VERSION "1.1.3"
 !define PRODUCT_PUBLISHER "NGUdbhav"
 !define PRODUCT_WEB_SITE "https://github.com/ngudbhav/Webkiosk-Wrapper/releases"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\Webskiosk-Wrapper.exe"
