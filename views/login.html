@@ -24,9 +24,14 @@
 					</div>
 					<div class="px-4">
 						<div class="table-wrapper">
+							<br>
+							<div class="custom-control custom-switch">
+								<input type="checkbox" class="custom-control-input" id="college" name="college" value="J128">
+								<label class="custom-control-label" for="college"></label>Check for JIIT-128 and uncheck for JIIT-62</label>
+							</div>
 							<div class="md-form">
 								<i class="fas fa-user prefix"></i>
-								<input type="text" id="form1" class="form-control" name="name" placeholder="Your Name">
+								<input type="text" id="form1" class="form-control" name="name" placeholder="Your Name. Need not match with webkiosk.">
 								<label for="form1" class="sr-only">Your Name</label>
 							</div>
 							<div class="md-form">
@@ -45,6 +50,7 @@
 								<label for="form4" class="sr-only">Your Password</label>
 							</div>
 							<button type="submit" class="btn blue-gradient btn-md" style="color: white;"><i class="fas fa-sign-in-alt"></i>   Sign in</button>
+							<br><br>
 						</div>
 					</div>
 				</div>
@@ -59,7 +65,7 @@
 			<div class="col-4 offset-2" onclick="checkUpdates();">
 				<h6 title="Check for updates">
 					<center>
-						<a style="cursor:pointer;" id="updates">Connecting...</a>
+						<a style="cursor:pointer;" id="updates">Check for updates</a>
 					</center>
 				</h6>
 			</div>
@@ -78,7 +84,11 @@
 	require('popper.js');
 	window.Bootstrap = require('bootstrap');
 	$("button[type='submit']").click(function(){
-		ipcRenderer.send('login', {enroll:$("input[name='enroll']").val(),name:$("input[name='name']").val(),dob:$("input[name='dob']").val(),password:$("input[name='password']").val()});
+		let college='JIIT';
+		if($("#college").is(":checked")){
+			college = 'J128';
+		}
+		ipcRenderer.send('login', {enroll:$("input[name='enroll']").val(),name:$("input[name='name']").val(),dob:$("input[name='dob']").val(),password:$("input[name='password']").val(), college:college});
 		$(this).html('<i class="fas fa-cog fa-spin"></i>  Logging in...');
 	});
 	function checkUpdates(){

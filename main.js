@@ -281,6 +281,7 @@ function createLoginScreen(){
 		nodeIntegration: true
 	}});
 	loginScreen.loadFile(path.join(__dirname, 'views', 'login.html'));
+	loginScreen.openDevTools();
 	loginScreen.setMenu(null);
 	//No need of menu
 	loginScreen.removeMenu();
@@ -932,10 +933,10 @@ function getSubjects(e){
 function checkLoginStatus(item){
 	if(loginStatus === 1){
 		//If the credentails are correct, then save the login data into the webkiosk.
-		logindb.insert({enroll: item.enroll, dob:item.dob, password:item.password}, function(error, results){
+		logindb.insert({enroll: item.enroll, dob:item.dob, password:item.password, college: item.college}, function(error, results){
 			if(error){
-				throw new Error('There seems to be a problem in reading your login data. Please login again.');
 				clear();
+				throw new Error('There seems to be a problem in reading your login data. Please login again.');
 			}
 			else{
 				if(!mainScreen){
@@ -981,7 +982,7 @@ function login(data){
 			headers.Cookie = cookie;
 			//Cookies overwritten
 			//Submit the login form with the data from the user.
-			request.post({secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in/CommonFiles/UseValid.jsp', form: {txtInst:"Institute", InstCode:"JIIT", txtuType:"Member Type", UserType101117:"S", txtCode:"Enrollment No", MemberCode:data.enroll, DOB:"DOB", DATE1:data.dob, txtPin:"Password/Pin", Password101117:data.password, BTNSubmit:"Submit", txtCode:"Enter Captcha     ", txtcap:captcha}, headers: headers}, function(error,httpResponse,body){
+			request.post({secureProtocol: 'TLSv1_method', strictSSL: false, url:'https://webkiosk.jiit.ac.in/CommonFiles/UseValid.jsp', form: {txtInst:"Institute", InstCode:data.college, txtuType:"Member Type", UserType101117:"S", txtCode:"Enrollment No", MemberCode:data.enroll, DOB:"DOB", DATE1:data.dob, txtPin:"Password/Pin", Password101117:data.password, BTNSubmit:"Submit", txtCode:"Enter Captcha     ", txtcap:captcha}, headers: headers}, function(error,httpResponse,body){
 				if(error){
 					console.log(error);
 				}
