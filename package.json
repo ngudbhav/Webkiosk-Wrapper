@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "electron": "^5.0.1",
-    "electron-installer-debian": "^2.0.0",
+    "electron-installer-debian": "^2.0.1",
     "electron-installer-redhat": "^2.0.0",
     "electron-packager": "^14.0.0"
   }
